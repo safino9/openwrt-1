@@ -1,0 +1,140 @@
+/dts-v1/;
+
+/include/ "bcm63268.dtsi"
+
+/ {
+	model = "Comtrend VG-8050";
+	compatible = "comtrend,vg-8050", "brcm,bcm63268";
+
+	/*
+	spi-gpio {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "spi-gpio";
+
+		gpio-mosi = <&gpio0 1 0>;
+		gpio-sck = <&gpio0 0 0>;
+		num-chipselects = <1>;
+
+		hc595: gpio-spi-controller@0 {
+			compatible = "fairchild,74hc595";
+			reg = <0>;
+			registers-number = <2>;
+			spi-max-frequency = <100000>;
+
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+	};
+	*/
+
+	gpio-keys-polled {
+		compatible = "gpio-keys-polled";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		poll-interval = <20>;
+		debounce-interval = <60>;
+
+		reset {
+			label = "reset";
+			gpios = <&gpio1 0 1>;
+			linux,code = <0x198>;
+		};
+		wps {
+			label = "wps";
+			gpios = <&gpio1 1 1>;
+			linux,code = <0x211>;
+		};
+	};
+
+	/*
+	gpio-leds {
+		compatible = "gpio-leds";
+
+		inet_red {
+			label = "VG-8050:red:inet";
+			gpios = <&hc595 2 1>;
+		};
+		power_red {
+			label = "VG-8050:red:power";
+			gpios = <&hc595 3 1>;
+		};
+		power_green {
+			label = "VG-8050:green:power";
+			gpios = <&hc595 6 1>;
+			default-state = "on";
+		};
+		wps_green {
+			label = "VG-8050:green:wps";
+			gpios = <&hc595 7 1>;
+		};
+		inet_green {
+			label = "VG-8050:green:inet";
+			gpios = <&hc595 8 1>;
+		};
+		voip_green {
+			label = "VG-8050:green:voip";
+			gpios = <&hc595 10 1>;
+		};
+		voip_red {
+			label = "VG-8050:red:voip";
+			gpios = <&hc595 12 1>;
+		};
+		wps_red {
+			label = "VG-8050:red:wps";
+			gpios = <&hc595 14 1>;
+		};
+	};
+	*/
+};
+
+&sleds0 {
+	status = "ok";
+
+	inet_red {
+		compatible = "serial-led";
+		num = <0x2>; /* BP_SERIAL_GPIO_2 */
+		label = "VG-8050:red:inet";
+	};
+	power_red {
+		compatible = "serial-led";
+		num = <0x3>; /* BP_SERIAL_GPIO_3 */
+		label = "VG-8050:red:power";
+	};
+	power_green {
+		compatible = "serial-led";
+		num = <0x6>; /* BP_SERIAL_GPIO_6 */
+		label = "VG-8050:green:power";
+		default-state = "on";
+	};
+	wps_green {
+		compatible = "serial-led";
+		num = <0x7>; /* BP_SERIAL_GPIO_7 */
+		label = "VG-8050:green:wps";
+	};
+};
+
+&sleds1 {
+	status = "ok";
+
+	inet_green {
+		compatible = "serial-led";
+		num = <0x0>; /* BP_SERIAL_GPIO_8 */
+		label = "VG-8050:green:inet";
+	};
+	voip_green {
+		compatible = "serial-led";
+		num = <0x2>; /* BP_SERIAL_GPIO_10 */
+		label = "VG-8050:green:voip";
+	};
+	voip_red {
+		compatible = "serial-led";
+		num = <0x4>; /* BP_SERIAL_GPIO_12 */
+		label = "VG-8050:red:voip";
+	};
+	wps_red {
+		compatible = "serial-led";
+		num = <0x6>; /* BP_SERIAL_GPIO_14 */
+		label = "VG-8050:red:wps";
+	};
+};

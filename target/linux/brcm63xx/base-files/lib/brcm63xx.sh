@@ -24,6 +24,11 @@ brcm63xx_detect() {
 		status_led="VR-3032u:green:power"
 		ifname=eth0
 		;;
+	963169P-1861N5)
+		brcm63xx_has_reset_button="true"
+		status_led="VG-8050:green:power"
+		ifname=eth0
+		;;
 	963281TAN)
 		status_led="963281TAN::power"
 		ifname=eth0
