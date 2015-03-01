@@ -1,0 +1,226 @@
+diff -uprN a/arch/mips/bcm63xx/boards/board_common.c b/arch/mips/bcm63xx/boards/board_common.c
+--- a/arch/mips/bcm63xx/boards/board_common.c	2015-03-01 14:14:02.652047930 +0100
++++ b/arch/mips/bcm63xx/boards/board_common.c	2015-03-01 14:15:43.366112981 +0100
+@@ -123,6 +123,9 @@ void __init board_early_setup(const stru
+ 			val |= GPIO_MODE_6358_ENET1_MII_CLK_INV;
+ 	}
+ 
++	if (BCMCPU_IS_63268())
++		val |= BIT(0) | BIT(1);
++
+ 	bcm_gpio_writel(val, GPIO_MODE_REG);
+ 
+ 	/* Clear LEDCtrl register */
+diff -uprN a/drivers/leds/Kconfig b/drivers/leds/Kconfig
+--- a/drivers/leds/Kconfig	2015-03-01 14:14:00.912048009 +0100
++++ b/drivers/leds/Kconfig	2015-03-01 14:29:48.437598611 +0100
+@@ -32,6 +32,13 @@ config LEDS_88PM860X
+ 	  This option enables support for on-chip LED drivers found on Marvell
+ 	  Semiconductor 88PM8606 PMIC.
+ 
++config LEDS_BCM63XX_SERIAL
++	tristate "Serial LEDs support for BCM63xx chip"
++	depends on LEDS_CLASS
++	help
++	  This option enables support for serial LEDs connected to the BCM63Xx
++	  LED HW controller accessed via MMIO registers.
++
+ config LEDS_LM3530
+ 	tristate "LCD Backlight driver for LM3530"
+ 	depends on LEDS_CLASS
+diff -uprN a/drivers/leds/leds-bcm63xx-serial.c b/drivers/leds/leds-bcm63xx-serial.c
+--- a/drivers/leds/leds-bcm63xx-serial.c	1970-01-01 01:00:00.000000000 +0100
++++ b/drivers/leds/leds-bcm63xx-serial.c	2015-03-01 17:08:31.850958656 +0100
+@@ -0,0 +1,181 @@
++/*
++ * Driver for BCM63XX memory-mapped Serial LEDs, based on leds-syscon.c
++ *
++ * Copyright 2015 Álvaro Fernández Rojas <noltari@gmail.com>
++ *
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
++ */
++#include <linux/io.h>
++#include <linux/of_device.h>
++#include <linux/of_address.h>
++#include <linux/platform_device.h>
++#include <linux/stat.h>
++#include <linux/slab.h>
++#include <linux/regmap.h>
++#include <linux/leds.h>
++
++#define LED_MODE_MASK	0x3
++#define LED_MODE_OFF	0x0
++#define LED_MODE_ON		0x3
++
++#define NUM_LED_SHIFT(X) (((X) < 8) ? (32 + ((X) << 1)) : (((X) - 8) << 1))
++
++/**
++ * struct bcm63xx_sled - state container for syscon based LEDs
++ * @cdev: LED class device for this LED
++ * @map: regmap to access the syscon device backing this LED
++ * @num: LED pin number
++ * @state: current state of the LED
++ */
++struct bcm63xx_sled {
++	struct led_classdev cdev;
++	void __iomem *map;
++	u32 num;
++	bool state;
++};
++
++static void bcm63xx_sled_write64(void __iomem *reg, unsigned long long data)
++{
++	iowrite32be((unsigned long) ((data >> 32) & 0xFFFF), reg + 4);
++	iowrite32be((unsigned long) (data & 0xFFFF), reg);
++}
++
++static unsigned long long bcm63xx_sled_read64(void __iomem *reg)
++{
++	return ((((unsigned long long) ioread32be(reg + 4)) << 32) & 0xFFFF0000) | (((unsigned long long) ioread32be(reg)) & 0xFFFF);
++}
++
++static void bcm63xx_sled_set(struct led_classdev *led_cdev,
++	enum led_brightness value)
++{
++	struct bcm63xx_sled *sled =
++		container_of(led_cdev, struct bcm63xx_sled, cdev);
++	u64 val;
++
++	val = bcm63xx_sled_read64(sled->map);
++
++	val &= ~(LED_MODE_MASK << NUM_LED_SHIFT(sled->num));
++	if (value == LED_OFF) {
++		val |= (LED_MODE_OFF << NUM_LED_SHIFT(sled->num));
++		sled->state = false;
++	} else {
++		val |= (LED_MODE_ON << NUM_LED_SHIFT(sled->num));
++		sled->state = true;
++	}
++
++	bcm63xx_sled_write64(sled->map, val);
++}
++
++static const struct of_device_id of_bcm63xx_sleds_match[] = {
++	{ .compatible = "brcm,bcm6362-serial-leds", },
++	{},
++};
++
++static int __init bcm63xx_sleds_init(void)
++{
++	const struct of_device_id *devid;
++	struct device_node *np;
++	struct device_node *child;
++	struct resource *map_r;
++	void __iomem *map;
++	struct platform_device *pdev;
++	struct device *dev;
++	int ret;
++
++	np = of_find_matching_node_and_match(NULL, of_bcm63xx_sleds_match,
++					     &devid);
++	if (!np)
++		return -ENODEV;
++
++	/*
++	 * If the map is there, the device should be there, we allocate
++	 * memory on the syscon device's behalf here.
++	 */
++	pdev = of_find_device_by_node(np);
++	if (!pdev)
++		return -ENODEV;
++	dev = &pdev->dev;
++
++	map_r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!map_r)
++		return -EINVAL;
++
++	map = devm_ioremap_resource(dev, map_r);
++	if (IS_ERR(map))
++		return PTR_ERR(map);
++
++	for_each_available_child_of_node(np, child) {
++		struct bcm63xx_sled *sled;
++		const char *state;
++
++		/* Only check for register-bit-leds */
++		if (of_property_match_string(child, "compatible",
++					     "register-bit-led") < 0)
++			continue;
++
++		sled = devm_kzalloc(dev, sizeof(*sled), GFP_KERNEL);
++		if (!sled)
++			return -ENOMEM;
++
++		sled->map = map;
++
++		if (of_property_read_u32(child, "num", &sled->num))
++			return -EINVAL;
++		sled->cdev.name =
++			of_get_property(child, "label", NULL) ? : child->name;
++		sled->cdev.default_trigger =
++			of_get_property(child, "linux,default-trigger", NULL);
++
++		state = of_get_property(child, "default-state", NULL);
++		if (state) {
++			u64 val, bits;
++			bool update_val = false;
++			val = bcm63xx_sled_read64(sled->map);
++			bits = val & (LED_MODE_MASK << NUM_LED_SHIFT(sled->num));
++
++			if (!strcmp(state, "keep")) {
++				if(bits == (LED_MODE_OFF << NUM_LED_SHIFT(sled->num))) {
++					sled->state = false;
++				}
++				else if(bits == (LED_MODE_ON << NUM_LED_SHIFT(sled->num))) {
++					sled->state = true;
++				}
++				else {
++					sled->state = false;
++					val &= ~(LED_MODE_MASK << NUM_LED_SHIFT(sled->num));
++					val |= (LED_MODE_OFF << NUM_LED_SHIFT(sled->num));
++					update_val = true;
++				}
++			} else if (!strcmp(state, "on")) {
++				sled->state = true;
++				val &= ~(LED_MODE_MASK << NUM_LED_SHIFT(sled->num));
++				val |= (LED_MODE_ON << NUM_LED_SHIFT(sled->num));
++				update_val = true;
++
++			} else {
++				sled->state = false;
++				val &= ~(LED_MODE_MASK << NUM_LED_SHIFT(sled->num));
++				val |= (LED_MODE_OFF << NUM_LED_SHIFT(sled->num));
++				update_val = true;
++			}
++
++			if(update_val) {
++				bcm63xx_sled_write64(sled->map, val);
++			}
++		}
++
++		sled->cdev.brightness_set = bcm63xx_sled_set;
++
++		ret = led_classdev_register(dev, &sled->cdev);
++		if (ret < 0)
++			return ret;
++
++		dev_info(dev, "registered LED %s\n", sled->cdev.name);
++	}
++
++	return 0;
++}
++device_initcall(bcm63xx_sleds_init);
+diff -uprN a/drivers/leds/Makefile b/drivers/leds/Makefile
+--- a/drivers/leds/Makefile	2015-03-01 14:14:00.912048009 +0100
++++ b/drivers/leds/Makefile	2015-03-01 14:30:23.260175573 +0100
+@@ -6,6 +6,7 @@ obj-$(CONFIG_LEDS_TRIGGERS)		+= led-trig
+ 
+ # LED Platform Drivers
+ obj-$(CONFIG_LEDS_88PM860X)		+= leds-88pm860x.o
++obj-$(CONFIG_LEDS_BCM63XX_SERIAL)	+= leds-bcm63xx-serial.o
+ obj-$(CONFIG_LEDS_BD2802)		+= leds-bd2802.o
+ obj-$(CONFIG_LEDS_LOCOMO)		+= leds-locomo.o
+ obj-$(CONFIG_LEDS_LM3530)		+= leds-lm3530.o

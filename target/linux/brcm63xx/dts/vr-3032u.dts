@@ -6,6 +6,7 @@
 	model = "Comtrend VR-3032u";
 	compatible = "comtrend,vr-3032u", "brcm,bcm63268";
 
+	/*
 	spi-gpio {
 		#address-cells = <1>;
 		#size-cells = <1>;
@@ -25,6 +26,7 @@
 			#gpio-cells = <2>;
 		};
 	};
+	*/
 
 	gpio-keys-polled {
 		compatible = "gpio-keys-polled";
@@ -53,6 +55,7 @@
 			gpios = <&gpio0 20 1>;
 			default-state = "on";
 		};
+		/*
 		inet_red {
 			label = "VR-3032u:red:inet";
 			gpios = <&hc595 2 1>;
@@ -89,5 +92,74 @@
 			label = "VR-3032u:green:lan1";
 			gpios = <&hc595 12 1>;
 		};
+		*/
+	};
+};
+
+&sleds {
+	status = "ok";
+
+	inet_red {
+		compatible = "register-bit-led";
+		num = <0x2>;
+		label = "VR-3032u:red:inet";
+		linux,default-trigger = "none";
+		default-state = "off";
+	};
+	dsl_green {
+		compatible = "register-bit-led";
+		num = <0x3>;
+		label = "VR-3032u:green:dsl";
+		linux,default-trigger = "none";
+		default-state = "off";
+	};
+	usb_green {
+		compatible = "register-bit-led";
+		num = <0x4>;
+		label = "VR-3032u:green:usb";
+		linux,default-trigger = "none";
+		default-state = "off";
+	};
+	wps_green {
+		compatible = "register-bit-led";
+		num = <0x7>;
+		label = "VR-3032u:green:wps";
+		linux,default-trigger = "none";
+		default-state = "off";
+	};
+	inet_green {
+		compatible = "register-bit-led";
+		num = <0x8>;
+		label = "VR-3032u:green:inet";
+		linux,default-trigger = "none";
+		default-state = "off";
+	};
+	lan2_green {
+		compatible = "register-bit-led";
+		num = <0x9>;
+		label = "VR-3032u:green:lan2";
+		linux,default-trigger = "none";
+		default-state = "off";
+	};
+	lan3_green {
+		compatible = "register-bit-led";
+		num = <0x10>;
+		label = "VR-3032u:green:lan3";
+		linux,default-trigger = "none";
+		default-state = "off";
+	};
+	lan4_green {
+		compatible = "register-bit-led";
+		num = <0x11>;
+		label = "VR-3032u:green:lan4";
+		linux,default-trigger = "none";
+		default-state = "off";
+	};
+	lan1_green {
+		compatible = "register-bit-led";
+		num = <0x12>;
+		label = "VR-3032u:green:lan1";
+		linux,default-trigger = "none";
+		default-state = "off";
 	};
 };
