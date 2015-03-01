@@ -6,6 +6,8 @@
 	aliases {
 		gpio0 = &gpio0;
 		gpio1 = &gpio1;
+		sleds0 = &sleds0;
+		sleds1 = &sleds1;
 	};
 
 	cpus {
@@ -73,6 +75,20 @@
 
 			gpio-controller;
 			#gpio-cells = <2>;
+		};
+
+		sleds0: serial-leds@10000204 {
+			compatible = "brcm,bcm6318-serial-leds";
+			reg = <0x10000204 4>;
+
+			status = "disabled";
+		};
+
+		sleds1: serial-leds@10000208 {
+			compatible = "brcm,bcm6318-serial-leds";
+			reg = <0x10000208 4>;
+
+			status = "disabled";
 		};
 	};
 };
