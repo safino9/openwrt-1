@@ -6,6 +6,7 @@
 	model = "Comtrend VR-3032u";
 	compatible = "comtrend,vr-3032u", "brcm,bcm63268";
 
+	/*
 	spi-gpio {
 		#address-cells = <1>;
 		#size-cells = <1>;
@@ -25,6 +26,7 @@
 			#gpio-cells = <2>;
 		};
 	};
+	*/
 
 	gpio-keys-polled {
 		compatible = "gpio-keys-polled";
@@ -53,6 +55,7 @@
 			gpios = <&gpio0 20 1>;
 			default-state = "on";
 		};
+		/*
 		inet_red {
 			label = "VR-3032u:red:inet";
 			gpios = <&hc595 2 1>;
@@ -89,5 +92,70 @@
 			label = "VR-3032u:green:lan1";
 			gpios = <&hc595 12 1>;
 		};
+		*/
+	};
+};
+
+&sleds0 {
+	status = "ok";
+
+	inet_red {
+		compatible = "serial-led";
+		pin = <0x2>; /* BP_SERIAL_GPIO_2 */
+		label = "VR-3032u:red:inet";
+		active_low;
+	};
+	dsl_green {
+		compatible = "serial-led";
+		pin = <0x3>; /* BP_SERIAL_GPIO_3 */
+		label = "VR-3032u:green:dsl";
+		active_low;
+	};
+	usb_green {
+		compatible = "serial-led";
+		pin = <0x4>; /* BP_SERIAL_GPIO_4 */
+		label = "VR-3032u:green:usb";
+		active_low;
+	};
+	wps_green {
+		compatible = "serial-led";
+		pin = <0x7>; /* BP_SERIAL_GPIO_7 */
+		label = "VR-3032u:green:wps";
+		active_low;
+	};
+};
+
+&sleds1 {
+	status = "ok";
+
+	inet_green {
+		compatible = "serial-led";
+		pin = <0x0>; /* BP_SERIAL_GPIO_8 */
+		label = "VR-3032u:green:inet";
+		active_low;
+	};
+	lan2_green {
+		compatible = "serial-led";
+		pin = <0x1>; /* BP_SERIAL_GPIO_9 */
+		label = "VR-3032u:green:lan2";
+		active_low;
+	};
+	lan3_green {
+		compatible = "serial-led";
+		pin = <0x2>; /* BP_SERIAL_GPIO_10 */
+		label = "VR-3032u:green:lan3";
+		active_low;
+	};
+	lan4_green {
+		compatible = "serial-led";
+		pin = <0x3>; /* BP_SERIAL_GPIO_11 */
+		label = "VR-3032u:green:lan4";
+		active_low;
+	};
+	lan1_green {
+		compatible = "serial-led";
+		pin = <0x4>; /* BP_SERIAL_GPIO_12 */
+		label = "VR-3032u:green:lan1";
+		active_low;
 	};
 };

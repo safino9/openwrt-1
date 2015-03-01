@@ -7,6 +7,7 @@
 		pflash = &pflash;
 		gpio0 = &gpio0;
 		gpio1 = &gpio1;
+		sleds = &sleds;
 	};
 
 	cpus {
@@ -92,6 +93,14 @@
 
 			gpio-controller;
 			#gpio-cells = <2>;
+		};
+
+		sleds: serial-leds@100000d0 {
+			compatible = "brcm,bcm6368-serial-leds";
+			reg = <0x100000d0 4>, <0x100000d4 4>;
+			reg-names = "dat", "ctl";
+
+			status = "disabled";
 		};
 	};
 
