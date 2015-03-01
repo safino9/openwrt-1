@@ -59,6 +59,10 @@ define Image/Build/CFEDTB
 		--info2 $(1) $(6)
 endef
 
+define Image/Build/NANDCFEDTB
+	# NAND images not supported, only initramfs
+endef
+
 define Image/Build/OLDCFEDTB
 	# Generate the tagged image
 	$(TOPDIR)/scripts/brcmImage.pl -t -p \
@@ -269,7 +273,7 @@ $(eval $(call ImageDTB,CFEDTB,VR3025u,VR-3025u,vr-3025u,96368M-1541N,6368,--pad 
 # Comtrend VR-3025un
 $(eval $(call ImageDTB,CFEDTB,VR3025un,VR-3025un,vr-3025un,96368M-1341N,6368,--pad 4))
 # Comtrend VR-3032u
-#$(eval $(call ImageDTB,CFEDTB,VR3032u,VR-3032u,vr-3032u,963168M-1841N1,63268))
+$(eval $(call ImageDTB,NANDCFEDTB,VR3032u,VR-3032u,vr-3032u,963168M-1841N1,63268))
 # Comtrend WAP-5813n
 $(eval $(call ImageDTB,CFEDTB,WAP5813n,WAP-5813n,wap-5813n,96369R-1231N,6368,--pad 4))
 # D-Link DSL-2640B, rev B2
