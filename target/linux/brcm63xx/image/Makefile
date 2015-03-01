@@ -268,6 +268,8 @@ $(eval $(call ImageDTB,CFEDTB,CT6373,CT-6373,ct-6373,CT6373-1,6358))
 $(eval $(call ImageDTB,CFEDTB,VR3025u,VR-3025u,vr-3025u,96368M-1541N,6368,--pad 16 --image-offset 0x20000 --block-size 0x20000))
 # Comtrend VR-3025un
 $(eval $(call ImageDTB,CFEDTB,VR3025un,VR-3025un,vr-3025un,96368M-1341N,6368,--pad 4))
+# Comtrend VR-3032u
+#$(eval $(call ImageDTB,CFEDTB,VR3032u,VR-3032u,vr-3032u,963168M-1841N1,63268))
 # Comtrend WAP-5813n
 $(eval $(call ImageDTB,CFEDTB,WAP5813n,WAP-5813n,wap-5813n,96369R-1231N,6368,--pad 4))
 # D-Link DSL-2640B, rev B2

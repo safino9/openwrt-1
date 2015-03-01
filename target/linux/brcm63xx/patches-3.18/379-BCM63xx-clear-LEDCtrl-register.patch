@@ -1,0 +1,13 @@
+--- a/arch/mips/bcm63xx/boards/board_common.c
++++ b/arch/mips/bcm63xx/boards/board_common.c
+@@ -108,6 +108,10 @@ void __init board_early_setup(const stru
+ 
+ 	bcm_gpio_writel(val, GPIO_MODE_REG);
+ 
++	/* Clear LEDCtrl register */
++	if (BCMCPU_IS_6362() || BCMCPU_IS_63268())
++		bcm_gpio_writel(0, 0x10);
++
+ #if IS_ENABLED(CONFIG_USB)
+ 	if (BCMCPU_IS_6318() && (board.has_ehci0 || board.has_ohci0)) {
+ 		val = bcm_gpio_readl(GPIO_PINMUX_SEL0_6318);

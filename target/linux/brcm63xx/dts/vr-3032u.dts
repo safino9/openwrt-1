@@ -1,0 +1,93 @@
+/dts-v1/;
+
+/include/ "bcm63268.dtsi"
+
+/ {
+	model = "Comtrend VR-3032u";
+	compatible = "comtrend,vr-3032u", "brcm,bcm63268";
+
+	spi-gpio {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "spi-gpio";
+
+		gpio-mosi = <&gpio0 1 0>;
+		gpio-sck = <&gpio0 0 0>;
+		num-chipselects = <0>;
+
+		hc595: gpio-spi-controller@0 {
+			compatible = "fairchild,74hc595";
+			reg = <0>;
+			registers-number = <2>;
+			spi-max-frequency = <100000>;
+
+			gpio-controller;
+			#gpio-cells = <2>;
+		};
+	};
+
+	gpio-keys-polled {
+		compatible = "gpio-keys-polled";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		poll-interval = <20>;
+		debounce-interval = <60>;
+
+		reset {
+			label = "reset";
+			gpios = <&gpio1 0 1>;
+			linux,code = <0x198>;
+		};
+		wps {
+			label = "wps";
+			gpios = <&gpio1 1 1>;
+			linux,code = <0x211>;
+		};
+	};
+
+	gpio-leds {
+		compatible = "gpio-leds";
+
+		power_green {
+			label = "VR-3032u:green:power";
+			gpios = <&gpio0 20 1>;
+			default-state = "on";
+		};
+		inet_red {
+			label = "VR-3032u:red:inet";
+			gpios = <&hc595 2 1>;
+		};
+		dsl_green {
+			label = "VR-3032u:green:dsl";
+			gpios = <&hc595 3 1>;
+		};
+		usb_green {
+			label = "VR-3032u:green:usb";
+			gpios = <&hc595 4 1>;
+		};
+		wps_green {
+			label = "VR-3032u:green:wps";
+			gpios = <&hc595 7 1>;
+		};
+		inet_green {
+			label = "VR-3032u:green:inet";
+			gpios = <&hc595 8 1>;
+		};
+		lan2_green {
+			label = "VR-3032u:green:lan2";
+			gpios = <&hc595 9 1>;
+		};
+		lan3_green {
+			label = "VR-3032u:green:lan3";
+			gpios = <&hc595 10 1>;
+		};
+		lan4_green {
+			label = "VR-3032u:green:lan4";
+			gpios = <&hc595 11 1>;
+		};
+		lan1_green {
+			label = "VR-3032u:green:lan1";
+			gpios = <&hc595 12 1>;
+		};
+	};
+};
