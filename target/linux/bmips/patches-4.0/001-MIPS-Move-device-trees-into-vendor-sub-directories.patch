@@ -1,0 +1,5041 @@
+--- a/arch/mips/Makefile
++++ b/arch/mips/Makefile
+@@ -374,7 +374,7 @@ core-$(CONFIG_BUILTIN_DTB) += arch/mips/
+ 
+ PHONY += dtbs
+ dtbs: scripts
+-	$(Q)$(MAKE) $(build)=arch/mips/boot/dts dtbs
++	$(Q)$(MAKE) $(build)=arch/mips/boot/dts
+ 
+ archprepare:
+ ifdef CONFIG_MIPS32_N32
+--- a/arch/mips/boot/dts/Makefile
++++ b/arch/mips/boot/dts/Makefile
+@@ -1,21 +1,12 @@
+-dtb-$(CONFIG_BCM3384)			+= bcm93384wvg.dtb
+-dtb-$(CONFIG_CAVIUM_OCTEON_SOC)		+= octeon_3xxx.dtb octeon_68xx.dtb
+-dtb-$(CONFIG_DT_EASY50712)		+= easy50712.dtb
+-dtb-$(CONFIG_DT_XLP_EVP)		+= xlp_evp.dtb
+-dtb-$(CONFIG_DT_XLP_SVP)		+= xlp_svp.dtb
+-dtb-$(CONFIG_DT_XLP_FVP)		+= xlp_fvp.dtb
+-dtb-$(CONFIG_DT_XLP_GVP)		+= xlp_gvp.dtb
+-dtb-$(CONFIG_DTB_RT2880_EVAL)		+= rt2880_eval.dtb
+-dtb-$(CONFIG_DTB_RT305X_EVAL)		+= rt3052_eval.dtb
+-dtb-$(CONFIG_DTB_RT3883_EVAL)		+= rt3883_eval.dtb
+-dtb-$(CONFIG_DTB_MT7620A_EVAL)		+= mt7620a_eval.dtb
+-dtb-$(CONFIG_MIPS_SEAD3)		+= sead3.dtb
++dts-dirs	+= brcm
++dts-dirs	+= cavium-octeon
++dts-dirs	+= lantiq
++dts-dirs	+= mti
++dts-dirs	+= netlogic
++dts-dirs	+= ralink
+ 
+-obj-y		+= $(patsubst %.dtb, %.dtb.o, $(dtb-y))
++obj-y		:= $(addsuffix /, $(dts-dirs))
+ 
+-targets		+= dtbs
+-targets		+= $(dtb-y)
+-
+-dtbs: $(addprefix $(obj)/, $(dtb-y))
+-
+-clean-files	+= *.dtb *.dtb.S
++always		:= $(dtb-y)
++subdir-y	:= $(dts-dirs)
++clean-files	:= *.dtb *.dtb.S
+--- /dev/null
++++ b/arch/mips/boot/dts/brcm/Makefile
+@@ -0,0 +1,9 @@
++dtb-$(CONFIG_BCM3384)		+= bcm93384wvg.dtb
++
++obj-y				+= $(patsubst %.dtb, %.dtb.o, $(dtb-y))
++
++# Force kbuild to make empty built-in.o if necessary
++obj-				+= dummy.o
++
++always				:= $(dtb-y)
++clean-files			:= *.dtb *.dtb.S
+--- /dev/null
++++ b/arch/mips/boot/dts/cavium-octeon/Makefile
+@@ -0,0 +1,9 @@
++dtb-$(CONFIG_CAVIUM_OCTEON_SOC)	+= octeon_3xxx.dtb octeon_68xx.dtb
++
++obj-y				+= $(patsubst %.dtb, %.dtb.o, $(dtb-y))
++
++# Force kbuild to make empty built-in.o if necessary
++obj-				+= dummy.o
++
++always				:= $(dtb-y)
++clean-files			:= *.dtb *.dtb.S
+--- /dev/null
++++ b/arch/mips/boot/dts/lantiq/Makefile
+@@ -0,0 +1,9 @@
++dtb-$(CONFIG_DT_EASY50712)	+= easy50712.dtb
++
++obj-y				+= $(patsubst %.dtb, %.dtb.o, $(dtb-y))
++
++# Force kbuild to make empty built-in.o if necessary
++obj-				+= dummy.o
++
++always				:= $(dtb-y)
++clean-files			:= *.dtb *.dtb.S
+--- /dev/null
++++ b/arch/mips/boot/dts/mti/Makefile
+@@ -0,0 +1,9 @@
++dtb-$(CONFIG_MIPS_SEAD3)	+= sead3.dtb
++
++obj-y				+= $(patsubst %.dtb, %.dtb.o, $(dtb-y))
++
++# Force kbuild to make empty built-in.o if necessary
++obj-				+= dummy.o
++
++always				:= $(dtb-y)
++clean-files			:= *.dtb *.dtb.S
+--- /dev/null
++++ b/arch/mips/boot/dts/netlogic/Makefile
+@@ -0,0 +1,12 @@
++dtb-$(CONFIG_DT_XLP_EVP)	+= xlp_evp.dtb
++dtb-$(CONFIG_DT_XLP_SVP)	+= xlp_svp.dtb
++dtb-$(CONFIG_DT_XLP_FVP)	+= xlp_fvp.dtb
++dtb-$(CONFIG_DT_XLP_GVP)	+= xlp_gvp.dtb
++
++obj-y				+= $(patsubst %.dtb, %.dtb.o, $(dtb-y))
++
++# Force kbuild to make empty built-in.o if necessary
++obj-				+= dummy.o
++
++always				:= $(dtb-y)
++clean-files			:= *.dtb *.dtb.S
+--- /dev/null
++++ b/arch/mips/boot/dts/ralink/Makefile
+@@ -0,0 +1,12 @@
++dtb-$(CONFIG_DTB_RT2880_EVAL)	+= rt2880_eval.dtb
++dtb-$(CONFIG_DTB_RT305X_EVAL)	+= rt3052_eval.dtb
++dtb-$(CONFIG_DTB_RT3883_EVAL)	+= rt3883_eval.dtb
++dtb-$(CONFIG_DTB_MT7620A_EVAL)	+= mt7620a_eval.dtb
++
++obj-y				+= $(patsubst %.dtb, %.dtb.o, $(dtb-y))
++
++# Force kbuild to make empty built-in.o if necessary
++obj-				+= dummy.o
++
++always				:= $(dtb-y)
++clean-files			:= *.dtb *.dtb.S
+--- a/arch/mips/boot/dts/bcm3384.dtsi
++++ /dev/null
+@@ -1,109 +0,0 @@
+-/ {
+-	#address-cells = <1>;
+-	#size-cells = <1>;
+-	compatible = "brcm,bcm3384", "brcm,bcm33843";
+-
+-	cpus {
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+-
+-		/* On BMIPS5000 this is 1/8th of the CPU core clock */
+-		mips-hpt-frequency = <100000000>;
+-
+-		cpu@0 {
+-			compatible = "brcm,bmips5000";
+-			device_type = "cpu";
+-			reg = <0>;
+-		};
+-
+-		cpu@1 {
+-			compatible = "brcm,bmips5000";
+-			device_type = "cpu";
+-			reg = <1>;
+-		};
+-	};
+-
+-	clocks {
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+-
+-		periph_clk: periph_clk@0 {
+-			compatible = "fixed-clock";
+-			#clock-cells = <0>;
+-			clock-frequency = <54000000>;
+-		};
+-	};
+-
+-	aliases {
+-		uart0 = &uart0;
+-	};
+-
+-	cpu_intc: cpu_intc@0 {
+-		#address-cells = <0>;
+-		compatible = "mti,cpu-interrupt-controller";
+-
+-		interrupt-controller;
+-		#interrupt-cells = <1>;
+-	};
+-
+-	periph_intc: periph_intc@14e00038 {
+-		compatible = "brcm,bcm3384-intc";
+-		reg = <0x14e00038 0x8 0x14e00340 0x8>;
+-
+-		interrupt-controller;
+-		#interrupt-cells = <1>;
+-
+-		interrupt-parent = <&cpu_intc>;
+-		interrupts = <4>;
+-	};
+-
+-	zmips_intc: zmips_intc@104b0060 {
+-		compatible = "brcm,bcm3384-intc";
+-		reg = <0x104b0060 0x8>;
+-
+-		interrupt-controller;
+-		#interrupt-cells = <1>;
+-
+-		interrupt-parent = <&periph_intc>;
+-		interrupts = <29>;
+-	};
+-
+-	iop_intc: iop_intc@14e00058 {
+-		compatible = "brcm,bcm3384-intc";
+-		reg = <0x14e00058 0x8>;
+-
+-		interrupt-controller;
+-		#interrupt-cells = <1>;
+-
+-		interrupt-parent = <&cpu_intc>;
+-		interrupts = <6>;
+-	};
+-
+-	uart0: serial@14e00520 {
+-		compatible = "brcm,bcm6345-uart";
+-		reg = <0x14e00520 0x18>;
+-		interrupt-parent = <&periph_intc>;
+-		interrupts = <2>;
+-		clocks = <&periph_clk>;
+-		status = "disabled";
+-	};
+-
+-	ehci0: usb@15400300 {
+-		compatible = "brcm,bcm3384-ehci", "generic-ehci";
+-		reg = <0x15400300 0x100>;
+-		big-endian;
+-		interrupt-parent = <&periph_intc>;
+-		interrupts = <41>;
+-		status = "disabled";
+-	};
+-
+-	ohci0: usb@15400400 {
+-		compatible = "brcm,bcm3384-ohci", "generic-ohci";
+-		reg = <0x15400400 0x100>;
+-		big-endian;
+-		no-big-frame-no;
+-		interrupt-parent = <&periph_intc>;
+-		interrupts = <40>;
+-		status = "disabled";
+-	};
+-};
+--- a/arch/mips/boot/dts/bcm93384wvg.dts
++++ /dev/null
+@@ -1,32 +0,0 @@
+-/dts-v1/;
+-
+-/include/ "bcm3384.dtsi"
+-
+-/ {
+-	compatible = "brcm,bcm93384wvg", "brcm,bcm3384";
+-	model = "Broadcom BCM93384WVG";
+-
+-	chosen {
+-		bootargs = "console=ttyS0,115200";
+-		stdout-path = &uart0;
+-	};
+-
+-	memory@0 {
+-		device_type = "memory";
+-		reg = <0x0 0x04000000>;
+-		dma-xor-mask = <0x08000000>;
+-		dma-xor-limit = <0x0fffffff>;
+-	};
+-};
+-
+-&uart0 {
+-	status = "okay";
+-};
+-
+-&ehci0 {
+-	status = "okay";
+-};
+-
+-&ohci0 {
+-	status = "okay";
+-};
+--- /dev/null
++++ b/arch/mips/boot/dts/brcm/bcm3384.dtsi
+@@ -0,0 +1,109 @@
++/ {
++	#address-cells = <1>;
++	#size-cells = <1>;
++	compatible = "brcm,bcm3384", "brcm,bcm33843";
++
++	cpus {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		/* On BMIPS5000 this is 1/8th of the CPU core clock */
++		mips-hpt-frequency = <100000000>;
++
++		cpu@0 {
++			compatible = "brcm,bmips5000";
++			device_type = "cpu";
++			reg = <0>;
++		};
++
++		cpu@1 {
++			compatible = "brcm,bmips5000";
++			device_type = "cpu";
++			reg = <1>;
++		};
++	};
++
++	clocks {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		periph_clk: periph_clk@0 {
++			compatible = "fixed-clock";
++			#clock-cells = <0>;
++			clock-frequency = <54000000>;
++		};
++	};
++
++	aliases {
++		uart0 = &uart0;
++	};
++
++	cpu_intc: cpu_intc@0 {
++		#address-cells = <0>;
++		compatible = "mti,cpu-interrupt-controller";
++
++		interrupt-controller;
++		#interrupt-cells = <1>;
++	};
++
++	periph_intc: periph_intc@14e00038 {
++		compatible = "brcm,bcm3384-intc";
++		reg = <0x14e00038 0x8 0x14e00340 0x8>;
++
++		interrupt-controller;
++		#interrupt-cells = <1>;
++
++		interrupt-parent = <&cpu_intc>;
++		interrupts = <4>;
++	};
++
++	zmips_intc: zmips_intc@104b0060 {
++		compatible = "brcm,bcm3384-intc";
++		reg = <0x104b0060 0x8>;
++
++		interrupt-controller;
++		#interrupt-cells = <1>;
++
++		interrupt-parent = <&periph_intc>;
++		interrupts = <29>;
++	};
++
++	iop_intc: iop_intc@14e00058 {
++		compatible = "brcm,bcm3384-intc";
++		reg = <0x14e00058 0x8>;
++
++		interrupt-controller;
++		#interrupt-cells = <1>;
++
++		interrupt-parent = <&cpu_intc>;
++		interrupts = <6>;
++	};
++
++	uart0: serial@14e00520 {
++		compatible = "brcm,bcm6345-uart";
++		reg = <0x14e00520 0x18>;
++		interrupt-parent = <&periph_intc>;
++		interrupts = <2>;
++		clocks = <&periph_clk>;
++		status = "disabled";
++	};
++
++	ehci0: usb@15400300 {
++		compatible = "brcm,bcm3384-ehci", "generic-ehci";
++		reg = <0x15400300 0x100>;
++		big-endian;
++		interrupt-parent = <&periph_intc>;
++		interrupts = <41>;
++		status = "disabled";
++	};
++
++	ohci0: usb@15400400 {
++		compatible = "brcm,bcm3384-ohci", "generic-ohci";
++		reg = <0x15400400 0x100>;
++		big-endian;
++		no-big-frame-no;
++		interrupt-parent = <&periph_intc>;
++		interrupts = <40>;
++		status = "disabled";
++	};
++};
+--- /dev/null
++++ b/arch/mips/boot/dts/brcm/bcm93384wvg.dts
+@@ -0,0 +1,32 @@
++/dts-v1/;
++
++/include/ "bcm3384.dtsi"
++
++/ {
++	compatible = "brcm,bcm93384wvg", "brcm,bcm3384";
++	model = "Broadcom BCM93384WVG";
++
++	chosen {
++		bootargs = "console=ttyS0,115200";
++		stdout-path = &uart0;
++	};
++
++	memory@0 {
++		device_type = "memory";
++		reg = <0x0 0x04000000>;
++		dma-xor-mask = <0x08000000>;
++		dma-xor-limit = <0x0fffffff>;
++	};
++};
++
++&uart0 {
++	status = "okay";
++};
++
++&ehci0 {
++	status = "okay";
++};
++
++&ohci0 {
++	status = "okay";
++};
+--- /dev/null
++++ b/arch/mips/boot/dts/cavium-octeon/octeon_3xxx.dts
+@@ -0,0 +1,590 @@
++/dts-v1/;
++/*
++ * OCTEON 3XXX, 5XXX, 63XX device tree skeleton.
++ *
++ * This device tree is pruned and patched by early boot code before
++ * use.	 Because of this, it contains a super-set of the available
++ * devices and properties.
++ */
++/ {
++	compatible = "cavium,octeon-3860";
++	#address-cells = <2>;
++	#size-cells = <2>;
++	interrupt-parent = <&ciu>;
++
++	soc@0 {
++		compatible = "simple-bus";
++		#address-cells = <2>;
++		#size-cells = <2>;
++		ranges; /* Direct mapping */
++
++		ciu: interrupt-controller@1070000000000 {
++			compatible = "cavium,octeon-3860-ciu";
++			interrupt-controller;
++			/* Interrupts are specified by two parts:
++			 * 1) Controller register (0 or 1)
++			 * 2) Bit within the register (0..63)
++			 */
++			#interrupt-cells = <2>;
++			reg = <0x10700 0x00000000 0x0 0x7000>;
++		};
++
++		gpio: gpio-controller@1070000000800 {
++			#gpio-cells = <2>;
++			compatible = "cavium,octeon-3860-gpio";
++			reg = <0x10700 0x00000800 0x0 0x100>;
++			gpio-controller;
++			/* Interrupts are specified by two parts:
++			 * 1) GPIO pin number (0..15)
++			 * 2) Triggering (1 - edge rising
++			 *		  2 - edge falling
++			 *		  4 - level active high
++			 *		  8 - level active low)
++			 */
++			interrupt-controller;
++			#interrupt-cells = <2>;
++			/* The GPIO pin connect to 16 consecutive CUI bits */
++			interrupts = <0 16>, <0 17>, <0 18>, <0 19>,
++				     <0 20>, <0 21>, <0 22>, <0 23>,
++				     <0 24>, <0 25>, <0 26>, <0 27>,
++				     <0 28>, <0 29>, <0 30>, <0 31>;
++		};
++
++		smi0: mdio@1180000001800 {
++			compatible = "cavium,octeon-3860-mdio";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0x11800 0x00001800 0x0 0x40>;
++
++			phy0: ethernet-phy@0 {
++				compatible = "marvell,88e1118";
++				marvell,reg-init =
++					/* Fix rx and tx clock transition timing */
++					<2 0x15 0xffcf 0>, /* Reg 2,21 Clear bits 4, 5 */
++					/* Adjust LED drive. */
++					<3 0x11 0 0x442a>, /* Reg 3,17 <- 0442a */
++					/* irq, blink-activity, blink-link */
++					<3 0x10 0 0x0242>; /* Reg 3,16 <- 0x0242 */
++				reg = <0>;
++			};
++
++			phy1: ethernet-phy@1 {
++				compatible = "marvell,88e1118";
++				marvell,reg-init =
++					/* Fix rx and tx clock transition timing */
++					<2 0x15 0xffcf 0>, /* Reg 2,21 Clear bits 4, 5 */
++					/* Adjust LED drive. */
++					<3 0x11 0 0x442a>, /* Reg 3,17 <- 0442a */
++					/* irq, blink-activity, blink-link */
++					<3 0x10 0 0x0242>; /* Reg 3,16 <- 0x0242 */
++				reg = <1>;
++			};
++
++			phy2: ethernet-phy@2 {
++				reg = <2>;
++				compatible = "marvell,88e1149r";
++				marvell,reg-init = <3 0x10 0 0x5777>,
++					<3 0x11 0 0x00aa>,
++					<3 0x12 0 0x4105>,
++					<3 0x13 0 0x0a60>;
++			};
++			phy3: ethernet-phy@3 {
++				reg = <3>;
++				compatible = "marvell,88e1149r";
++				marvell,reg-init = <3 0x10 0 0x5777>,
++					<3 0x11 0 0x00aa>,
++					<3 0x12 0 0x4105>,
++					<3 0x13 0 0x0a60>;
++			};
++			phy4: ethernet-phy@4 {
++				reg = <4>;
++				compatible = "marvell,88e1149r";
++				marvell,reg-init = <3 0x10 0 0x5777>,
++					<3 0x11 0 0x00aa>,
++					<3 0x12 0 0x4105>,
++					<3 0x13 0 0x0a60>;
++			};
++			phy5: ethernet-phy@5 {
++				reg = <5>;
++				compatible = "marvell,88e1149r";
++				marvell,reg-init = <3 0x10 0 0x5777>,
++					<3 0x11 0 0x00aa>,
++					<3 0x12 0 0x4105>,
++					<3 0x13 0 0x0a60>;
++			};
++
++			phy6: ethernet-phy@6 {
++				reg = <6>;
++				compatible = "marvell,88e1149r";
++				marvell,reg-init = <3 0x10 0 0x5777>,
++					<3 0x11 0 0x00aa>,
++					<3 0x12 0 0x4105>,
++					<3 0x13 0 0x0a60>;
++			};
++			phy7: ethernet-phy@7 {
++				reg = <7>;
++				compatible = "marvell,88e1149r";
++				marvell,reg-init = <3 0x10 0 0x5777>,
++					<3 0x11 0 0x00aa>,
++					<3 0x12 0 0x4105>,
++					<3 0x13 0 0x0a60>;
++			};
++			phy8: ethernet-phy@8 {
++				reg = <8>;
++				compatible = "marvell,88e1149r";
++				marvell,reg-init = <3 0x10 0 0x5777>,
++					<3 0x11 0 0x00aa>,
++					<3 0x12 0 0x4105>,
++					<3 0x13 0 0x0a60>;
++			};
++			phy9: ethernet-phy@9 {
++				reg = <9>;
++				compatible = "marvell,88e1149r";
++				marvell,reg-init = <3 0x10 0 0x5777>,
++					<3 0x11 0 0x00aa>,
++					<3 0x12 0 0x4105>,
++					<3 0x13 0 0x0a60>;
++			};
++		};
++
++		smi1: mdio@1180000001900 {
++			compatible = "cavium,octeon-3860-mdio";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0x11800 0x00001900 0x0 0x40>;
++
++			phy100: ethernet-phy@1 {
++				reg = <1>;
++				compatible = "marvell,88e1149r";
++				marvell,reg-init = <3 0x10 0 0x5777>,
++					<3 0x11 0 0x00aa>,
++					<3 0x12 0 0x4105>,
++					<3 0x13 0 0x0a60>;
++				interrupt-parent = <&gpio>;
++				interrupts = <12 8>; /* Pin 12, active low */
++			};
++			phy101: ethernet-phy@2 {
++				reg = <2>;
++				compatible = "marvell,88e1149r";
++				marvell,reg-init = <3 0x10 0 0x5777>,
++					<3 0x11 0 0x00aa>,
++					<3 0x12 0 0x4105>,
++					<3 0x13 0 0x0a60>;
++				interrupt-parent = <&gpio>;
++				interrupts = <12 8>; /* Pin 12, active low */
++			};
++			phy102: ethernet-phy@3 {
++				reg = <3>;
++				compatible = "marvell,88e1149r";
++				marvell,reg-init = <3 0x10 0 0x5777>,
++					<3 0x11 0 0x00aa>,
++					<3 0x12 0 0x4105>,
++					<3 0x13 0 0x0a60>;
++				interrupt-parent = <&gpio>;
++				interrupts = <12 8>; /* Pin 12, active low */
++			};
++			phy103: ethernet-phy@4 {
++				reg = <4>;
++				compatible = "marvell,88e1149r";
++				marvell,reg-init = <3 0x10 0 0x5777>,
++					<3 0x11 0 0x00aa>,
++					<3 0x12 0 0x4105>,
++					<3 0x13 0 0x0a60>;
++				interrupt-parent = <&gpio>;
++				interrupts = <12 8>; /* Pin 12, active low */
++			};
++		};
++
++		mix0: ethernet@1070000100000 {
++			compatible = "cavium,octeon-5750-mix";
++			reg = <0x10700 0x00100000 0x0 0x100>, /* MIX */
++			      <0x11800 0xE0000000 0x0 0x300>, /* AGL */
++			      <0x11800 0xE0000400 0x0 0x400>, /* AGL_SHARED  */
++			      <0x11800 0xE0002000 0x0 0x8>;   /* AGL_PRT_CTL */
++			cell-index = <0>;
++			interrupts = <0 62>, <1 46>;
++			local-mac-address = [ 00 00 00 00 00 00 ];
++			phy-handle = <&phy0>;
++		};
++
++		mix1: ethernet@1070000100800 {
++			compatible = "cavium,octeon-5750-mix";
++			reg = <0x10700 0x00100800 0x0 0x100>, /* MIX */
++			      <0x11800 0xE0000800 0x0 0x300>, /* AGL */
++			      <0x11800 0xE0000400 0x0 0x400>, /* AGL_SHARED  */
++			      <0x11800 0xE0002008 0x0 0x8>;   /* AGL_PRT_CTL */
++			cell-index = <1>;
++			interrupts = <1 18>, < 1 46>;
++			local-mac-address = [ 00 00 00 00 00 00 ];
++			phy-handle = <&phy1>;
++		};
++
++		pip: pip@11800a0000000 {
++			compatible = "cavium,octeon-3860-pip";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0x11800 0xa0000000 0x0 0x2000>;
++
++			interface@0 {
++				compatible = "cavium,octeon-3860-pip-interface";
++				#address-cells = <1>;
++				#size-cells = <0>;
++				reg = <0>; /* interface */
++
++				ethernet@0 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x0>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++					phy-handle = <&phy2>;
++					cavium,alt-phy-handle = <&phy100>;
++				};
++				ethernet@1 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x1>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++					phy-handle = <&phy3>;
++					cavium,alt-phy-handle = <&phy101>;
++				};
++				ethernet@2 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x2>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++					phy-handle = <&phy4>;
++					cavium,alt-phy-handle = <&phy102>;
++				};
++				ethernet@3 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x3>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++					phy-handle = <&phy5>;
++					cavium,alt-phy-handle = <&phy103>;
++				};
++				ethernet@4 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x4>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++				};
++				ethernet@5 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x5>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++				};
++				ethernet@6 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x6>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++				};
++				ethernet@7 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x7>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++				};
++				ethernet@8 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x8>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++				};
++				ethernet@9 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x9>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++				};
++				ethernet@a {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0xa>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++				};
++				ethernet@b {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0xb>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++				};
++				ethernet@c {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0xc>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++				};
++				ethernet@d {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0xd>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++				};
++				ethernet@e {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0xe>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++				};
++				ethernet@f {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0xf>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++				};
++			};
++
++			interface@1 {
++				compatible = "cavium,octeon-3860-pip-interface";
++				#address-cells = <1>;
++				#size-cells = <0>;
++				reg = <1>; /* interface */
++
++				ethernet@0 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x0>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++					phy-handle = <&phy6>;
++				};
++				ethernet@1 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x1>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++					phy-handle = <&phy7>;
++				};
++				ethernet@2 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x2>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++					phy-handle = <&phy8>;
++				};
++				ethernet@3 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x3>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++					phy-handle = <&phy9>;
++				};
++			};
++		};
++
++		twsi0: i2c@1180000001000 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			compatible = "cavium,octeon-3860-twsi";
++			reg = <0x11800 0x00001000 0x0 0x200>;
++			interrupts = <0 45>;
++			clock-frequency = <100000>;
++
++			rtc@68 {
++				compatible = "dallas,ds1337";
++				reg = <0x68>;
++			};
++			tmp@4c {
++				compatible = "ti,tmp421";
++				reg = <0x4c>;
++			};
++		};
++
++		twsi1: i2c@1180000001200 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			compatible = "cavium,octeon-3860-twsi";
++			reg = <0x11800 0x00001200 0x0 0x200>;
++			interrupts = <0 59>;
++			clock-frequency = <100000>;
++		};
++
++		uart0: serial@1180000000800 {
++			compatible = "cavium,octeon-3860-uart","ns16550";
++			reg = <0x11800 0x00000800 0x0 0x400>;
++			clock-frequency = <0>;
++			current-speed = <115200>;
++			reg-shift = <3>;
++			interrupts = <0 34>;
++		};
++
++		uart1: serial@1180000000c00 {
++			compatible = "cavium,octeon-3860-uart","ns16550";
++			reg = <0x11800 0x00000c00 0x0 0x400>;
++			clock-frequency = <0>;
++			current-speed = <115200>;
++			reg-shift = <3>;
++			interrupts = <0 35>;
++		};
++
++		uart2: serial@1180000000400 {
++			compatible = "cavium,octeon-3860-uart","ns16550";
++			reg = <0x11800 0x00000400 0x0 0x400>;
++			clock-frequency = <0>;
++			current-speed = <115200>;
++			reg-shift = <3>;
++			interrupts = <1 16>;
++		};
++
++		bootbus: bootbus@1180000000000 {
++			compatible = "cavium,octeon-3860-bootbus";
++			reg = <0x11800 0x00000000 0x0 0x200>;
++			/* The chip select number and offset */
++			#address-cells = <2>;
++			/* The size of the chip select region */
++			#size-cells = <1>;
++			ranges = <0 0  0x0 0x1f400000  0xc00000>,
++				 <1 0  0x10000 0x30000000  0>,
++				 <2 0  0x10000 0x40000000  0>,
++				 <3 0  0x10000 0x50000000  0>,
++				 <4 0  0x0 0x1d020000  0x10000>,
++				 <5 0  0x0 0x1d040000  0x10000>,
++				 <6 0  0x0 0x1d050000  0x10000>,
++				 <7 0  0x10000 0x90000000  0>;
++
++			cavium,cs-config@0 {
++				compatible = "cavium,octeon-3860-bootbus-config";
++				cavium,cs-index = <0>;
++				cavium,t-adr  = <20>;
++				cavium,t-ce   = <60>;
++				cavium,t-oe   = <60>;
++				cavium,t-we   = <45>;
++				cavium,t-rd-hld = <35>;
++				cavium,t-wr-hld = <45>;
++				cavium,t-pause	= <0>;
++				cavium,t-wait	= <0>;
++				cavium,t-page	= <35>;
++				cavium,t-rd-dly = <0>;
++
++				cavium,pages	 = <0>;
++				cavium,bus-width = <8>;
++			};
++			cavium,cs-config@4 {
++				compatible = "cavium,octeon-3860-bootbus-config";
++				cavium,cs-index = <4>;
++				cavium,t-adr  = <320>;
++				cavium,t-ce   = <320>;
++				cavium,t-oe   = <320>;
++				cavium,t-we   = <320>;
++				cavium,t-rd-hld = <320>;
++				cavium,t-wr-hld = <320>;
++				cavium,t-pause	= <320>;
++				cavium,t-wait	= <320>;
++				cavium,t-page	= <320>;
++				cavium,t-rd-dly = <0>;
++
++				cavium,pages	 = <0>;
++				cavium,bus-width = <8>;
++			};
++			cavium,cs-config@5 {
++				compatible = "cavium,octeon-3860-bootbus-config";
++				cavium,cs-index = <5>;
++				cavium,t-adr  = <5>;
++				cavium,t-ce   = <300>;
++				cavium,t-oe   = <125>;
++				cavium,t-we   = <150>;
++				cavium,t-rd-hld = <100>;
++				cavium,t-wr-hld = <30>;
++				cavium,t-pause	= <0>;
++				cavium,t-wait	= <30>;
++				cavium,t-page	= <320>;
++				cavium,t-rd-dly = <0>;
++
++				cavium,pages	 = <0>;
++				cavium,bus-width = <16>;
++			};
++			cavium,cs-config@6 {
++				compatible = "cavium,octeon-3860-bootbus-config";
++				cavium,cs-index = <6>;
++				cavium,t-adr  = <5>;
++				cavium,t-ce   = <300>;
++				cavium,t-oe   = <270>;
++				cavium,t-we   = <150>;
++				cavium,t-rd-hld = <100>;
++				cavium,t-wr-hld = <70>;
++				cavium,t-pause	= <0>;
++				cavium,t-wait	= <0>;
++				cavium,t-page	= <320>;
++				cavium,t-rd-dly = <0>;
++
++				cavium,pages	 = <0>;
++				cavium,wait-mode;
++				cavium,bus-width = <16>;
++			};
++
++			flash0: nor@0,0 {
++				compatible = "cfi-flash";
++				reg = <0 0 0x800000>;
++				#address-cells = <1>;
++				#size-cells = <1>;
++			};
++
++			led0: led-display@4,0 {
++				compatible = "avago,hdsp-253x";
++				reg = <4 0x20 0x20>, <4 0 0x20>;
++			};
++
++			cf0: compact-flash@5,0 {
++				compatible = "cavium,ebt3000-compact-flash";
++				reg = <5 0 0x10000>, <6 0 0x10000>;
++				cavium,bus-width = <16>;
++				cavium,true-ide;
++				cavium,dma-engine-handle = <&dma0>;
++			};
++		};
++
++		dma0: dma-engine@1180000000100 {
++			compatible = "cavium,octeon-5750-bootbus-dma";
++			reg = <0x11800 0x00000100 0x0 0x8>;
++			interrupts = <0 63>;
++		};
++		dma1: dma-engine@1180000000108 {
++			compatible = "cavium,octeon-5750-bootbus-dma";
++			reg = <0x11800 0x00000108 0x0 0x8>;
++			interrupts = <0 63>;
++		};
++
++		uctl: uctl@118006f000000 {
++			compatible = "cavium,octeon-6335-uctl";
++			reg = <0x11800 0x6f000000 0x0 0x100>;
++			ranges; /* Direct mapping */
++			#address-cells = <2>;
++			#size-cells = <2>;
++			/* 12MHz, 24MHz and 48MHz allowed */
++			refclk-frequency = <12000000>;
++			/* Either "crystal" or "external" */
++			refclk-type = "crystal";
++
++			ehci@16f0000000000 {
++				compatible = "cavium,octeon-6335-ehci","usb-ehci";
++				reg = <0x16f00 0x00000000 0x0 0x100>;
++				interrupts = <0 56>;
++				big-endian-regs;
++			};
++			ohci@16f0000000400 {
++				compatible = "cavium,octeon-6335-ohci","usb-ohci";
++				reg = <0x16f00 0x00000400 0x0 0x100>;
++				interrupts = <0 56>;
++				big-endian-regs;
++			};
++		};
++
++		usbn: usbn@1180068000000 {
++			compatible = "cavium,octeon-5750-usbn";
++			reg = <0x11800 0x68000000 0x0 0x1000>;
++			ranges; /* Direct mapping */
++			#address-cells = <2>;
++			#size-cells = <2>;
++			/* 12MHz, 24MHz and 48MHz allowed */
++			refclk-frequency = <12000000>;
++			/* Either "crystal" or "external" */
++			refclk-type = "crystal";
++
++			usbc@16f0010000000 {
++				compatible = "cavium,octeon-5750-usbc";
++				reg = <0x16f00 0x10000000 0x0 0x80000>;
++				interrupts = <0 56>;
++			};
++		};
++	};
++
++	aliases {
++		mix0 = &mix0;
++		mix1 = &mix1;
++		pip = &pip;
++		smi0 = &smi0;
++		smi1 = &smi1;
++		twsi0 = &twsi0;
++		twsi1 = &twsi1;
++		uart0 = &uart0;
++		uart1 = &uart1;
++		uart2 = &uart2;
++		flash0 = &flash0;
++		cf0 = &cf0;
++		uctl = &uctl;
++		usbn = &usbn;
++		led0 = &led0;
++	};
++ };
+--- /dev/null
++++ b/arch/mips/boot/dts/cavium-octeon/octeon_68xx.dts
+@@ -0,0 +1,625 @@
++/dts-v1/;
++/*
++ * OCTEON 68XX device tree skeleton.
++ *
++ * This device tree is pruned and patched by early boot code before
++ * use.	 Because of this, it contains a super-set of the available
++ * devices and properties.
++ */
++/ {
++	compatible = "cavium,octeon-6880";
++	#address-cells = <2>;
++	#size-cells = <2>;
++	interrupt-parent = <&ciu2>;
++
++	soc@0 {
++		compatible = "simple-bus";
++		#address-cells = <2>;
++		#size-cells = <2>;
++		ranges; /* Direct mapping */
++
++		ciu2: interrupt-controller@1070100000000 {
++			compatible = "cavium,octeon-6880-ciu2";
++			interrupt-controller;
++			/* Interrupts are specified by two parts:
++			 * 1) Controller register (0 or 7)
++			 * 2) Bit within the register (0..63)
++			 */
++			#address-cells = <0>;
++			#interrupt-cells = <2>;
++			reg = <0x10701 0x00000000 0x0 0x4000000>;
++		};
++
++		gpio: gpio-controller@1070000000800 {
++			#gpio-cells = <2>;
++			compatible = "cavium,octeon-3860-gpio";
++			reg = <0x10700 0x00000800 0x0 0x100>;
++			gpio-controller;
++			/* Interrupts are specified by two parts:
++			 * 1) GPIO pin number (0..15)
++			 * 2) Triggering (1 - edge rising
++			 *		  2 - edge falling
++			 *		  4 - level active high
++			 *		  8 - level active low)
++			 */
++			interrupt-controller;
++			#interrupt-cells = <2>;
++			/* The GPIO pins connect to 16 consecutive CUI bits */
++			interrupts = <7 0>,  <7 1>,  <7 2>,  <7 3>,
++				     <7 4>,  <7 5>,  <7 6>,  <7 7>,
++				     <7 8>,  <7 9>,  <7 10>, <7 11>,
++				     <7 12>, <7 13>, <7 14>, <7 15>;
++		};
++
++		smi0: mdio@1180000003800 {
++			compatible = "cavium,octeon-3860-mdio";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0x11800 0x00003800 0x0 0x40>;
++
++			phy0: ethernet-phy@6 {
++				compatible = "marvell,88e1118";
++				marvell,reg-init =
++					/* Fix rx and tx clock transition timing */
++					<2 0x15 0xffcf 0>, /* Reg 2,21 Clear bits 4, 5 */
++					/* Adjust LED drive. */
++					<3 0x11 0 0x442a>, /* Reg 3,17 <- 0442a */
++					/* irq, blink-activity, blink-link */
++					<3 0x10 0 0x0242>; /* Reg 3,16 <- 0x0242 */
++				reg = <6>;
++			};
++
++			phy1: ethernet-phy@1 {
++				cavium,qlm-trim = "4,sgmii";
++				reg = <1>;
++				compatible = "marvell,88e1149r";
++				marvell,reg-init = <3 0x10 0 0x5777>,
++					<3 0x11 0 0x00aa>,
++					<3 0x12 0 0x4105>,
++					<3 0x13 0 0x0a60>;
++			};
++			phy2: ethernet-phy@2 {
++				cavium,qlm-trim = "4,sgmii";
++				reg = <2>;
++				compatible = "marvell,88e1149r";
++				marvell,reg-init = <3 0x10 0 0x5777>,
++					<3 0x11 0 0x00aa>,
++					<3 0x12 0 0x4105>,
++					<3 0x13 0 0x0a60>;
++			};
++			phy3: ethernet-phy@3 {
++				cavium,qlm-trim = "4,sgmii";
++				reg = <3>;
++				compatible = "marvell,88e1149r";
++				marvell,reg-init = <3 0x10 0 0x5777>,
++					<3 0x11 0 0x00aa>,
++					<3 0x12 0 0x4105>,
++					<3 0x13 0 0x0a60>;
++			};
++			phy4: ethernet-phy@4 {
++				cavium,qlm-trim = "4,sgmii";
++				reg = <4>;
++				compatible = "marvell,88e1149r";
++				marvell,reg-init = <3 0x10 0 0x5777>,
++					<3 0x11 0 0x00aa>,
++					<3 0x12 0 0x4105>,
++					<3 0x13 0 0x0a60>;
++			};
++		};
++
++		smi1: mdio@1180000003880 {
++			compatible = "cavium,octeon-3860-mdio";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0x11800 0x00003880 0x0 0x40>;
++
++			phy41: ethernet-phy@1 {
++				cavium,qlm-trim = "0,sgmii";
++				reg = <1>;
++				compatible = "marvell,88e1149r";
++				marvell,reg-init = <3 0x10 0 0x5777>,
++					<3 0x11 0 0x00aa>,
++					<3 0x12 0 0x4105>,
++					<3 0x13 0 0x0a60>;
++			};
++			phy42: ethernet-phy@2 {
++				cavium,qlm-trim = "0,sgmii";
++				reg = <2>;
++				compatible = "marvell,88e1149r";
++				marvell,reg-init = <3 0x10 0 0x5777>,
++					<3 0x11 0 0x00aa>,
++					<3 0x12 0 0x4105>,
++					<3 0x13 0 0x0a60>;
++			};
++			phy43: ethernet-phy@3 {
++				cavium,qlm-trim = "0,sgmii";
++				reg = <3>;
++				compatible = "marvell,88e1149r";
++				marvell,reg-init = <3 0x10 0 0x5777>,
++					<3 0x11 0 0x00aa>,
++					<3 0x12 0 0x4105>,
++					<3 0x13 0 0x0a60>;
++			};
++			phy44: ethernet-phy@4 {
++				cavium,qlm-trim = "0,sgmii";
++				reg = <4>;
++				compatible = "marvell,88e1149r";
++				marvell,reg-init = <3 0x10 0 0x5777>,
++					<3 0x11 0 0x00aa>,
++					<3 0x12 0 0x4105>,
++					<3 0x13 0 0x0a60>;
++			};
++		};
++
++		smi2: mdio@1180000003900 {
++			compatible = "cavium,octeon-3860-mdio";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0x11800 0x00003900 0x0 0x40>;
++
++			phy21: ethernet-phy@1 {
++				cavium,qlm-trim = "2,sgmii";
++				reg = <1>;
++				compatible = "marvell,88e1149r";
++				marvell,reg-init = <3 0x10 0 0x5777>,
++					<3 0x11 0 0x00aa>,
++					<3 0x12 0 0x4105>,
++					<3 0x13 0 0x0a60>;
++			};
++			phy22: ethernet-phy@2 {
++				cavium,qlm-trim = "2,sgmii";
++				reg = <2>;
++				compatible = "marvell,88e1149r";
++				marvell,reg-init = <3 0x10 0 0x5777>,
++					<3 0x11 0 0x00aa>,
++					<3 0x12 0 0x4105>,
++					<3 0x13 0 0x0a60>;
++			};
++			phy23: ethernet-phy@3 {
++				cavium,qlm-trim = "2,sgmii";
++				reg = <3>;
++				compatible = "marvell,88e1149r";
++				marvell,reg-init = <3 0x10 0 0x5777>,
++					<3 0x11 0 0x00aa>,
++					<3 0x12 0 0x4105>,
++					<3 0x13 0 0x0a60>;
++			};
++			phy24: ethernet-phy@4 {
++				cavium,qlm-trim = "2,sgmii";
++				reg = <4>;
++				compatible = "marvell,88e1149r";
++				marvell,reg-init = <3 0x10 0 0x5777>,
++					<3 0x11 0 0x00aa>,
++					<3 0x12 0 0x4105>,
++					<3 0x13 0 0x0a60>;
++			};
++		};
++
++		smi3: mdio@1180000003980 {
++			compatible = "cavium,octeon-3860-mdio";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0x11800 0x00003980 0x0 0x40>;
++
++			phy11: ethernet-phy@1 {
++				cavium,qlm-trim = "3,sgmii";
++				reg = <1>;
++				compatible = "marvell,88e1149r";
++				marvell,reg-init = <3 0x10 0 0x5777>,
++					<3 0x11 0 0x00aa>,
++					<3 0x12 0 0x4105>,
++					<3 0x13 0 0x0a60>;
++			};
++			phy12: ethernet-phy@2 {
++				cavium,qlm-trim = "3,sgmii";
++				reg = <2>;
++				compatible = "marvell,88e1149r";
++				marvell,reg-init = <3 0x10 0 0x5777>,
++					<3 0x11 0 0x00aa>,
++					<3 0x12 0 0x4105>,
++					<3 0x13 0 0x0a60>;
++			};
++			phy13: ethernet-phy@3 {
++				cavium,qlm-trim = "3,sgmii";
++				reg = <3>;
++				compatible = "marvell,88e1149r";
++				marvell,reg-init = <3 0x10 0 0x5777>,
++					<3 0x11 0 0x00aa>,
++					<3 0x12 0 0x4105>,
++					<3 0x13 0 0x0a60>;
++			};
++			phy14: ethernet-phy@4 {
++				cavium,qlm-trim = "3,sgmii";
++				reg = <4>;
++				compatible = "marvell,88e1149r";
++				marvell,reg-init = <3 0x10 0 0x5777>,
++					<3 0x11 0 0x00aa>,
++					<3 0x12 0 0x4105>,
++					<3 0x13 0 0x0a60>;
++			};
++		};
++
++		mix0: ethernet@1070000100000 {
++			compatible = "cavium,octeon-5750-mix";
++			reg = <0x10700 0x00100000 0x0 0x100>, /* MIX */
++			      <0x11800 0xE0000000 0x0 0x300>, /* AGL */
++			      <0x11800 0xE0000400 0x0 0x400>, /* AGL_SHARED  */
++			      <0x11800 0xE0002000 0x0 0x8>;   /* AGL_PRT_CTL */
++			cell-index = <0>;
++			interrupts = <6 40>, <6 32>;
++			local-mac-address = [ 00 00 00 00 00 00 ];
++			phy-handle = <&phy0>;
++		};
++
++		pip: pip@11800a0000000 {
++			compatible = "cavium,octeon-3860-pip";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0x11800 0xa0000000 0x0 0x2000>;
++
++			interface@4 {
++				compatible = "cavium,octeon-3860-pip-interface";
++				#address-cells = <1>;
++				#size-cells = <0>;
++				reg = <0x4>; /* interface */
++
++				ethernet@0 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x0>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++					phy-handle = <&phy1>;
++				};
++				ethernet@1 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x1>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++					phy-handle = <&phy2>;
++				};
++				ethernet@2 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x2>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++					phy-handle = <&phy3>;
++				};
++				ethernet@3 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x3>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++					phy-handle = <&phy4>;
++				};
++			};
++
++			interface@3 {
++				compatible = "cavium,octeon-3860-pip-interface";
++				#address-cells = <1>;
++				#size-cells = <0>;
++				reg = <0x3>; /* interface */
++
++				ethernet@0 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x0>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++					phy-handle = <&phy11>;
++				};
++				ethernet@1 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x1>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++					phy-handle = <&phy12>;
++				};
++				ethernet@2 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x2>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++					phy-handle = <&phy13>;
++				};
++				ethernet@3 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x3>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++					phy-handle = <&phy14>;
++				};
++			};
++
++			interface@2 {
++				compatible = "cavium,octeon-3860-pip-interface";
++				#address-cells = <1>;
++				#size-cells = <0>;
++				reg = <0x2>; /* interface */
++
++				ethernet@0 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x0>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++					phy-handle = <&phy21>;
++				};
++				ethernet@1 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x1>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++					phy-handle = <&phy22>;
++				};
++				ethernet@2 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x2>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++					phy-handle = <&phy23>;
++				};
++				ethernet@3 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x3>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++					phy-handle = <&phy24>;
++				};
++			};
++
++			interface@1 {
++				compatible = "cavium,octeon-3860-pip-interface";
++				#address-cells = <1>;
++				#size-cells = <0>;
++				reg = <0x1>; /* interface */
++
++				ethernet@0 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x0>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++				};
++			};
++
++			interface@0 {
++				compatible = "cavium,octeon-3860-pip-interface";
++				#address-cells = <1>;
++				#size-cells = <0>;
++				reg = <0x0>; /* interface */
++
++				ethernet@0 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x0>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++					phy-handle = <&phy41>;
++				};
++				ethernet@1 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x1>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++					phy-handle = <&phy42>;
++				};
++				ethernet@2 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x2>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++					phy-handle = <&phy43>;
++				};
++				ethernet@3 {
++					compatible = "cavium,octeon-3860-pip-port";
++					reg = <0x3>; /* Port */
++					local-mac-address = [ 00 00 00 00 00 00 ];
++					phy-handle = <&phy44>;
++				};
++			};
++		};
++
++		twsi0: i2c@1180000001000 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			compatible = "cavium,octeon-3860-twsi";
++			reg = <0x11800 0x00001000 0x0 0x200>;
++			interrupts = <3 32>;
++			clock-frequency = <100000>;
++
++			rtc@68 {
++				compatible = "dallas,ds1337";
++				reg = <0x68>;
++			};
++			tmp@4c {
++				compatible = "ti,tmp421";
++				reg = <0x4c>;
++			};
++		};
++
++		twsi1: i2c@1180000001200 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			compatible = "cavium,octeon-3860-twsi";
++			reg = <0x11800 0x00001200 0x0 0x200>;
++			interrupts = <3 33>;
++			clock-frequency = <100000>;
++		};
++
++		uart0: serial@1180000000800 {
++			compatible = "cavium,octeon-3860-uart","ns16550";
++			reg = <0x11800 0x00000800 0x0 0x400>;
++			clock-frequency = <0>;
++			current-speed = <115200>;
++			reg-shift = <3>;
++			interrupts = <3 36>;
++		};
++
++		uart1: serial@1180000000c00 {
++			compatible = "cavium,octeon-3860-uart","ns16550";
++			reg = <0x11800 0x00000c00 0x0 0x400>;
++			clock-frequency = <0>;
++			current-speed = <115200>;
++			reg-shift = <3>;
++			interrupts = <3 37>;
++		};
++
++		bootbus: bootbus@1180000000000 {
++			compatible = "cavium,octeon-3860-bootbus";
++			reg = <0x11800 0x00000000 0x0 0x200>;
++			/* The chip select number and offset */
++			#address-cells = <2>;
++			/* The size of the chip select region */
++			#size-cells = <1>;
++			ranges = <0 0  0       0x1f400000  0xc00000>,
++				 <1 0  0x10000 0x30000000  0>,
++				 <2 0  0x10000 0x40000000  0>,
++				 <3 0  0x10000 0x50000000  0>,
++				 <4 0  0       0x1d020000  0x10000>,
++				 <5 0  0       0x1d040000  0x10000>,
++				 <6 0  0       0x1d050000  0x10000>,
++				 <7 0  0x10000 0x90000000  0>;
++
++			cavium,cs-config@0 {
++				compatible = "cavium,octeon-3860-bootbus-config";
++				cavium,cs-index = <0>;
++				cavium,t-adr  = <10>;
++				cavium,t-ce   = <50>;
++				cavium,t-oe   = <50>;
++				cavium,t-we   = <35>;
++				cavium,t-rd-hld = <25>;
++				cavium,t-wr-hld = <35>;
++				cavium,t-pause	= <0>;
++				cavium,t-wait	= <300>;
++				cavium,t-page	= <25>;
++				cavium,t-rd-dly = <0>;
++
++				cavium,pages	 = <0>;
++				cavium,bus-width = <8>;
++			};
++			cavium,cs-config@4 {
++				compatible = "cavium,octeon-3860-bootbus-config";
++				cavium,cs-index = <4>;
++				cavium,t-adr  = <320>;
++				cavium,t-ce   = <320>;
++				cavium,t-oe   = <320>;
++				cavium,t-we   = <320>;
++				cavium,t-rd-hld = <320>;
++				cavium,t-wr-hld = <320>;
++				cavium,t-pause	= <320>;
++				cavium,t-wait	= <320>;
++				cavium,t-page	= <320>;
++				cavium,t-rd-dly = <0>;
++
++				cavium,pages	 = <0>;
++				cavium,bus-width = <8>;
++			};
++			cavium,cs-config@5 {
++				compatible = "cavium,octeon-3860-bootbus-config";
++				cavium,cs-index = <5>;
++				cavium,t-adr  = <0>;
++				cavium,t-ce   = <300>;
++				cavium,t-oe   = <125>;
++				cavium,t-we   = <150>;
++				cavium,t-rd-hld = <100>;
++				cavium,t-wr-hld = <300>;
++				cavium,t-pause	= <0>;
++				cavium,t-wait	= <300>;
++				cavium,t-page	= <310>;
++				cavium,t-rd-dly = <0>;
++
++				cavium,pages	 = <0>;
++				cavium,bus-width = <16>;
++			};
++			cavium,cs-config@6 {
++				compatible = "cavium,octeon-3860-bootbus-config";
++				cavium,cs-index = <6>;
++				cavium,t-adr  = <0>;
++				cavium,t-ce   = <30>;
++				cavium,t-oe   = <125>;
++				cavium,t-we   = <150>;
++				cavium,t-rd-hld = <100>;
++				cavium,t-wr-hld = <30>;
++				cavium,t-pause	= <0>;
++				cavium,t-wait	= <30>;
++				cavium,t-page	= <310>;
++				cavium,t-rd-dly = <0>;
++
++				cavium,pages	 = <0>;
++				cavium,wait-mode;
++				cavium,bus-width = <16>;
++			};
++
++			flash0: nor@0,0 {
++				compatible = "cfi-flash";
++				reg = <0 0 0x800000>;
++				#address-cells = <1>;
++				#size-cells = <1>;
++
++				partition@0 {
++					label = "bootloader";
++					reg = <0 0x200000>;
++					read-only;
++				};
++				partition@200000 {
++					label = "kernel";
++					reg = <0x200000 0x200000>;
++				};
++				partition@400000 {
++					label = "cramfs";
++					reg = <0x400000 0x3fe000>;
++				};
++				partition@7fe000 {
++					label = "environment";
++					reg = <0x7fe000 0x2000>;
++					read-only;
++				};
++			};
++
++			led0: led-display@4,0 {
++				compatible = "avago,hdsp-253x";
++				reg = <4 0x20 0x20>, <4 0 0x20>;
++			};
++
++			compact-flash@5,0 {
++				compatible = "cavium,ebt3000-compact-flash";
++				reg = <5 0 0x10000>, <6 0 0x10000>;
++				cavium,bus-width = <16>;
++				cavium,true-ide;
++				cavium,dma-engine-handle = <&dma0>;
++			};
++		};
++
++		dma0: dma-engine@1180000000100 {
++			compatible = "cavium,octeon-5750-bootbus-dma";
++			reg = <0x11800 0x00000100 0x0 0x8>;
++			interrupts = <0 63>;
++		};
++		dma1: dma-engine@1180000000108 {
++			compatible = "cavium,octeon-5750-bootbus-dma";
++			reg = <0x11800 0x00000108 0x0 0x8>;
++			interrupts = <0 63>;
++		};
++
++		uctl: uctl@118006f000000 {
++			compatible = "cavium,octeon-6335-uctl";
++			reg = <0x11800 0x6f000000 0x0 0x100>;
++			ranges; /* Direct mapping */
++			#address-cells = <2>;
++			#size-cells = <2>;
++			/* 12MHz, 24MHz and 48MHz allowed */
++			refclk-frequency = <12000000>;
++			/* Either "crystal" or "external" */
++			refclk-type = "crystal";
++
++			ehci@16f0000000000 {
++				compatible = "cavium,octeon-6335-ehci","usb-ehci";
++				reg = <0x16f00 0x00000000 0x0 0x100>;
++				interrupts = <3 44>;
++				big-endian-regs;
++			};
++			ohci@16f0000000400 {
++				compatible = "cavium,octeon-6335-ohci","usb-ohci";
++				reg = <0x16f00 0x00000400 0x0 0x100>;
++				interrupts = <3 44>;
++				big-endian-regs;
++			};
++		};
++	};
++
++	aliases {
++		mix0 = &mix0;
++		pip = &pip;
++		smi0 = &smi0;
++		smi1 = &smi1;
++		smi2 = &smi2;
++		smi3 = &smi3;
++		twsi0 = &twsi0;
++		twsi1 = &twsi1;
++		uart0 = &uart0;
++		uart1 = &uart1;
++		uctl = &uctl;
++		led0 = &led0;
++		flash0 = &flash0;
++	};
++ };
+--- a/arch/mips/boot/dts/danube.dtsi
++++ /dev/null
+@@ -1,105 +0,0 @@
+-/ {
+-	#address-cells = <1>;
+-	#size-cells = <1>;
+-	compatible = "lantiq,xway", "lantiq,danube";
+-
+-	cpus {
+-		cpu@0 {
+-			compatible = "mips,mips24Kc";
+-		};
+-	};
+-
+-	biu@1F800000 {
+-		#address-cells = <1>;
+-		#size-cells = <1>;
+-		compatible = "lantiq,biu", "simple-bus";
+-		reg = <0x1F800000 0x800000>;
+-		ranges = <0x0 0x1F800000 0x7FFFFF>;
+-
+-		icu0: icu@80200 {
+-			#interrupt-cells = <1>;
+-			interrupt-controller;
+-			compatible = "lantiq,icu";
+-			reg = <0x80200 0x120>;
+-		};
+-
+-		watchdog@803F0 {
+-			compatible = "lantiq,wdt";
+-			reg = <0x803F0 0x10>;
+-		};
+-	};
+-
+-	sram@1F000000 {
+-		#address-cells = <1>;
+-		#size-cells = <1>;
+-		compatible = "lantiq,sram";
+-		reg = <0x1F000000 0x800000>;
+-		ranges = <0x0 0x1F000000 0x7FFFFF>;
+-
+-		eiu0: eiu@101000 {
+-			#interrupt-cells = <1>;
+-			interrupt-controller;
+-			interrupt-parent;
+-			compatible = "lantiq,eiu-xway";
+-			reg = <0x101000 0x1000>;
+-		};
+-
+-		pmu0: pmu@102000 {
+-			compatible = "lantiq,pmu-xway";
+-			reg = <0x102000 0x1000>;
+-		};
+-
+-		cgu0: cgu@103000 {
+-			compatible = "lantiq,cgu-xway";
+-			reg = <0x103000 0x1000>;
+-			#clock-cells = <1>;
+-		};
+-
+-		rcu0: rcu@203000 {
+-			compatible = "lantiq,rcu-xway";
+-			reg = <0x203000 0x1000>;
+-		};
+-	};
+-
+-	fpi@10000000 {
+-		#address-cells = <1>;
+-		#size-cells = <1>;
+-		compatible = "lantiq,fpi", "simple-bus";
+-		ranges = <0x0 0x10000000 0xEEFFFFF>;
+-		reg = <0x10000000 0xEF00000>;
+-
+-		gptu@E100A00 {
+-			compatible = "lantiq,gptu-xway";
+-			reg = <0xE100A00 0x100>;
+-		};
+-
+-		serial@E100C00 {
+-			compatible = "lantiq,asc";
+-			reg = <0xE100C00 0x400>;
+-			interrupt-parent = <&icu0>;
+-			interrupts = <112 113 114>;
+-		};
+-
+-		dma0: dma@E104100 {
+-			compatible = "lantiq,dma-xway";
+-			reg = <0xE104100 0x800>;
+-		};
+-
+-		ebu0: ebu@E105300 {
+-			compatible = "lantiq,ebu-xway";
+-			reg = <0xE105300 0x100>;
+-		};
+-
+-		pci0: pci@E105400 {
+-			#address-cells = <3>;
+-			#size-cells = <2>;
+-			#interrupt-cells = <1>;
+-			compatible = "lantiq,pci-xway";
+-			bus-range = <0x0 0x0>;
+-			ranges = <0x2000000 0 0x8000000 0x8000000 0 0x2000000	/* pci memory */
+-				  0x1000000 0 0x00000000 0xAE00000 0 0x200000>; /* io space */
+-			reg = <0x7000000 0x8000		/* config space */
+-				0xE105400 0x400>;	/* pci bridge */
+-		};
+-	};
+-};
+--- a/arch/mips/boot/dts/easy50712.dts
++++ /dev/null
+@@ -1,114 +0,0 @@
+-/dts-v1/;
+-
+-/include/ "danube.dtsi"
+-
+-/ {
+-	chosen {
+-		bootargs = "console=ttyLTQ0,115200 init=/etc/preinit";
+-	};
+-
+-	memory@0 {
+-		device_type = "memory";
+-		reg = <0x0 0x2000000>;
+-	};
+-
+-	fpi@10000000 {
+-		#address-cells = <1>;
+-		#size-cells = <1>;
+-		localbus@0 {
+-			#address-cells = <2>;
+-			#size-cells = <1>;
+-			ranges = <0 0 0x0 0x3ffffff /* addrsel0 */
+-				1 0 0x4000000 0x4000010>; /* addsel1 */
+-			compatible = "lantiq,localbus", "simple-bus";
+-
+-			nor-boot@0 {
+-				compatible = "lantiq,nor";
+-				bank-width = <2>;
+-				reg = <0 0x0 0x2000000>;
+-				#address-cells = <1>;
+-				#size-cells = <1>;
+-
+-				partition@0 {
+-					label = "uboot";
+-					reg = <0x00000 0x10000>; /* 64 KB */
+-				};
+-
+-				partition@10000 {
+-					label = "uboot_env";
+-					reg = <0x10000 0x10000>; /* 64 KB */
+-				};
+-
+-				partition@20000 {
+-					label = "linux";
+-					reg = <0x20000 0x3d0000>;
+-				};
+-
+-				partition@400000 {
+-					label = "rootfs";
+-					reg = <0x400000 0x400000>;
+-				};
+-			};
+-		};
+-
+-		gpio: pinmux@E100B10 {
+-			compatible = "lantiq,pinctrl-xway";
+-			pinctrl-names = "default";
+-			pinctrl-0 = <&state_default>;
+-
+-			#gpio-cells = <2>;
+-			gpio-controller;
+-			reg = <0xE100B10 0xA0>;
+-
+-			state_default: pinmux {
+-				stp {
+-					lantiq,groups = "stp";
+-					lantiq,function = "stp";
+-				};
+-				exin {
+-					lantiq,groups = "exin1";
+-					lantiq,function = "exin";
+-				};
+-				pci {
+-					lantiq,groups = "gnt1";
+-					lantiq,function = "pci";
+-				};
+-				conf_out {
+-					lantiq,pins = "io4", "io5", "io6"; /* stp */
+-					lantiq,open-drain;
+-					lantiq,pull = <0>;
+-				};
+-			};
+-		};
+-
+-		etop@E180000 {
+-			compatible = "lantiq,etop-xway";
+-			reg = <0xE180000 0x40000>;
+-			interrupt-parent = <&icu0>;
+-			interrupts = <73 78>;
+-			phy-mode = "rmii";
+-			mac-address = [ 00 11 22 33 44 55 ];
+-		};
+-
+-		stp0: stp@E100BB0 {
+-			#gpio-cells = <2>;
+-			compatible = "lantiq,gpio-stp-xway";
+-			gpio-controller;
+-			reg = <0xE100BB0 0x40>;
+-
+-			lantiq,shadow = <0xfff>;
+-			lantiq,groups = <0x3>;
+-		};
+-
+-		pci@E105400 {
+-			lantiq,bus-clock = <33333333>;
+-			interrupt-map-mask = <0xf800 0x0 0x0 0x7>;
+-			interrupt-map = <
+-				0x7000 0 0 1 &icu0 29 1 // slot 14, irq 29
+-			>;
+-			gpios-reset = <&gpio 21 0>;
+-			req-mask = <0x1>;		/* GNT1 */
+-		};
+-
+-	};
+-};
+--- /dev/null
++++ b/arch/mips/boot/dts/lantiq/danube.dtsi
+@@ -0,0 +1,105 @@
++/ {
++	#address-cells = <1>;
++	#size-cells = <1>;
++	compatible = "lantiq,xway", "lantiq,danube";
++
++	cpus {
++		cpu@0 {
++			compatible = "mips,mips24Kc";
++		};
++	};
++
++	biu@1F800000 {
++		#address-cells = <1>;
++		#size-cells = <1>;
++		compatible = "lantiq,biu", "simple-bus";
++		reg = <0x1F800000 0x800000>;
++		ranges = <0x0 0x1F800000 0x7FFFFF>;
++
++		icu0: icu@80200 {
++			#interrupt-cells = <1>;
++			interrupt-controller;
++			compatible = "lantiq,icu";
++			reg = <0x80200 0x120>;
++		};
++
++		watchdog@803F0 {
++			compatible = "lantiq,wdt";
++			reg = <0x803F0 0x10>;
++		};
++	};
++
++	sram@1F000000 {
++		#address-cells = <1>;
++		#size-cells = <1>;
++		compatible = "lantiq,sram";
++		reg = <0x1F000000 0x800000>;
++		ranges = <0x0 0x1F000000 0x7FFFFF>;
++
++		eiu0: eiu@101000 {
++			#interrupt-cells = <1>;
++			interrupt-controller;
++			interrupt-parent;
++			compatible = "lantiq,eiu-xway";
++			reg = <0x101000 0x1000>;
++		};
++
++		pmu0: pmu@102000 {
++			compatible = "lantiq,pmu-xway";
++			reg = <0x102000 0x1000>;
++		};
++
++		cgu0: cgu@103000 {
++			compatible = "lantiq,cgu-xway";
++			reg = <0x103000 0x1000>;
++			#clock-cells = <1>;
++		};
++
++		rcu0: rcu@203000 {
++			compatible = "lantiq,rcu-xway";
++			reg = <0x203000 0x1000>;
++		};
++	};
++
++	fpi@10000000 {
++		#address-cells = <1>;
++		#size-cells = <1>;
++		compatible = "lantiq,fpi", "simple-bus";
++		ranges = <0x0 0x10000000 0xEEFFFFF>;
++		reg = <0x10000000 0xEF00000>;
++
++		gptu@E100A00 {
++			compatible = "lantiq,gptu-xway";
++			reg = <0xE100A00 0x100>;
++		};
++
++		serial@E100C00 {
++			compatible = "lantiq,asc";
++			reg = <0xE100C00 0x400>;
++			interrupt-parent = <&icu0>;
++			interrupts = <112 113 114>;
++		};
++
++		dma0: dma@E104100 {
++			compatible = "lantiq,dma-xway";
++			reg = <0xE104100 0x800>;
++		};
++
++		ebu0: ebu@E105300 {
++			compatible = "lantiq,ebu-xway";
++			reg = <0xE105300 0x100>;
++		};
++
++		pci0: pci@E105400 {
++			#address-cells = <3>;
++			#size-cells = <2>;
++			#interrupt-cells = <1>;
++			compatible = "lantiq,pci-xway";
++			bus-range = <0x0 0x0>;
++			ranges = <0x2000000 0 0x8000000 0x8000000 0 0x2000000	/* pci memory */
++				  0x1000000 0 0x00000000 0xAE00000 0 0x200000>; /* io space */
++			reg = <0x7000000 0x8000		/* config space */
++				0xE105400 0x400>;	/* pci bridge */
++		};
++	};
++};
+--- /dev/null
++++ b/arch/mips/boot/dts/lantiq/easy50712.dts
+@@ -0,0 +1,114 @@
++/dts-v1/;
++
++/include/ "danube.dtsi"
++
++/ {
++	chosen {
++		bootargs = "console=ttyLTQ0,115200 init=/etc/preinit";
++	};
++
++	memory@0 {
++		device_type = "memory";
++		reg = <0x0 0x2000000>;
++	};
++
++	fpi@10000000 {
++		#address-cells = <1>;
++		#size-cells = <1>;
++		localbus@0 {
++			#address-cells = <2>;
++			#size-cells = <1>;
++			ranges = <0 0 0x0 0x3ffffff /* addrsel0 */
++				1 0 0x4000000 0x4000010>; /* addsel1 */
++			compatible = "lantiq,localbus", "simple-bus";
++
++			nor-boot@0 {
++				compatible = "lantiq,nor";
++				bank-width = <2>;
++				reg = <0 0x0 0x2000000>;
++				#address-cells = <1>;
++				#size-cells = <1>;
++
++				partition@0 {
++					label = "uboot";
++					reg = <0x00000 0x10000>; /* 64 KB */
++				};
++
++				partition@10000 {
++					label = "uboot_env";
++					reg = <0x10000 0x10000>; /* 64 KB */
++				};
++
++				partition@20000 {
++					label = "linux";
++					reg = <0x20000 0x3d0000>;
++				};
++
++				partition@400000 {
++					label = "rootfs";
++					reg = <0x400000 0x400000>;
++				};
++			};
++		};
++
++		gpio: pinmux@E100B10 {
++			compatible = "lantiq,pinctrl-xway";
++			pinctrl-names = "default";
++			pinctrl-0 = <&state_default>;
++
++			#gpio-cells = <2>;
++			gpio-controller;
++			reg = <0xE100B10 0xA0>;
++
++			state_default: pinmux {
++				stp {
++					lantiq,groups = "stp";
++					lantiq,function = "stp";
++				};
++				exin {
++					lantiq,groups = "exin1";
++					lantiq,function = "exin";
++				};
++				pci {
++					lantiq,groups = "gnt1";
++					lantiq,function = "pci";
++				};
++				conf_out {
++					lantiq,pins = "io4", "io5", "io6"; /* stp */
++					lantiq,open-drain;
++					lantiq,pull = <0>;
++				};
++			};
++		};
++
++		etop@E180000 {
++			compatible = "lantiq,etop-xway";
++			reg = <0xE180000 0x40000>;
++			interrupt-parent = <&icu0>;
++			interrupts = <73 78>;
++			phy-mode = "rmii";
++			mac-address = [ 00 11 22 33 44 55 ];
++		};
++
++		stp0: stp@E100BB0 {
++			#gpio-cells = <2>;
++			compatible = "lantiq,gpio-stp-xway";
++			gpio-controller;
++			reg = <0xE100BB0 0x40>;
++
++			lantiq,shadow = <0xfff>;
++			lantiq,groups = <0x3>;
++		};
++
++		pci@E105400 {
++			lantiq,bus-clock = <33333333>;
++			interrupt-map-mask = <0xf800 0x0 0x0 0x7>;
++			interrupt-map = <
++				0x7000 0 0 1 &icu0 29 1 // slot 14, irq 29
++			>;
++			gpios-reset = <&gpio 21 0>;
++			req-mask = <0x1>;		/* GNT1 */
++		};
++
++	};
++};
+--- a/arch/mips/boot/dts/mt7620a.dtsi
++++ /dev/null
+@@ -1,58 +0,0 @@
+-/ {
+-	#address-cells = <1>;
+-	#size-cells = <1>;
+-	compatible = "ralink,mtk7620a-soc";
+-
+-	cpus {
+-		cpu@0 {
+-			compatible = "mips,mips24KEc";
+-		};
+-	};
+-
+-	cpuintc: cpuintc@0 {
+-		#address-cells = <0>;
+-		#interrupt-cells = <1>;
+-		interrupt-controller;
+-		compatible = "mti,cpu-interrupt-controller";
+-	};
+-
+-	palmbus@10000000 {
+-		compatible = "palmbus";
+-		reg = <0x10000000 0x200000>;
+-                ranges = <0x0 0x10000000 0x1FFFFF>;
+-
+-		#address-cells = <1>;
+-		#size-cells = <1>;
+-
+-		sysc@0 {
+-			compatible = "ralink,mt7620a-sysc";
+-			reg = <0x0 0x100>;
+-		};
+-
+-		intc: intc@200 {
+-			compatible = "ralink,mt7620a-intc", "ralink,rt2880-intc";
+-			reg = <0x200 0x100>;
+-
+-			interrupt-controller;
+-			#interrupt-cells = <1>;
+-
+-			interrupt-parent = <&cpuintc>;
+-			interrupts = <2>;
+-		};
+-
+-		memc@300 {
+-			compatible = "ralink,mt7620a-memc", "ralink,rt3050-memc";
+-			reg = <0x300 0x100>;
+-		};
+-
+-		uartlite@c00 {
+-			compatible = "ralink,mt7620a-uart", "ralink,rt2880-uart", "ns16550a";
+-			reg = <0xc00 0x100>;
+-
+-			interrupt-parent = <&intc>;
+-			interrupts = <12>;
+-
+-			reg-shift = <2>;
+-		};
+-	};
+-};
+--- a/arch/mips/boot/dts/mt7620a_eval.dts
++++ /dev/null
+@@ -1,17 +0,0 @@
+-/dts-v1/;
+-
+-/include/ "mt7620a.dtsi"
+-
+-/ {
+-	compatible = "ralink,mt7620a-eval-board", "ralink,mt7620a-soc";
+-	model = "Ralink MT7620A evaluation board";
+-
+-	memory@0 {
+-		device_type = "memory";
+-		reg = <0x0 0x2000000>;
+-	};
+-
+-	chosen {
+-		bootargs = "console=ttyS0,57600";
+-	};
+-};
+--- /dev/null
++++ b/arch/mips/boot/dts/mti/sead3.dts
+@@ -0,0 +1,22 @@
++/dts-v1/;
++
++/memreserve/ 0x00000000 0x00001000;	// reserved
++/memreserve/ 0x00001000 0x000ef000;	// ROM data
++/memreserve/ 0x000f0000 0x004cc000;	// reserved
++
++/ {
++	#address-cells = <1>;
++	#size-cells = <1>;
++	compatible = "mti,sead-3";
++
++	cpus {
++		cpu@0 {
++			compatible = "mti,mips14KEc", "mti,mips14Kc";
++		};
++	};
++
++	memory {
++		device_type = "memory";
++		reg = <0x0 0x08000000>;
++	};
++};
+--- /dev/null
++++ b/arch/mips/boot/dts/netlogic/xlp_evp.dts
+@@ -0,0 +1,118 @@
++/*
++ * XLP8XX Device Tree Source for EVP boards
++ */
++
++/dts-v1/;
++/ {
++	model = "netlogic,XLP-EVP";
++	compatible = "netlogic,xlp";
++	#address-cells = <2>;
++	#size-cells = <2>;
++
++	soc {
++		#address-cells = <2>;
++		#size-cells = <1>;
++		compatible = "simple-bus";
++		ranges = <0 0  0 0x18000000  0x04000000   // PCIe CFG
++			  1 0  0 0x16000000  0x02000000>; // GBU chipselects
++
++		serial0: serial@30000 {
++			device_type = "serial";
++			compatible = "ns16550";
++			reg = <0 0x30100 0xa00>;
++			reg-shift = <2>;
++			reg-io-width = <4>;
++			clock-frequency = <133333333>;
++			interrupt-parent = <&pic>;
++			interrupts = <17>;
++		};
++		serial1: serial@31000 {
++			device_type = "serial";
++			compatible = "ns16550";
++			reg = <0 0x31100 0xa00>;
++			reg-shift = <2>;
++			reg-io-width = <4>;
++			clock-frequency = <133333333>;
++			interrupt-parent = <&pic>;
++			interrupts = <18>;
++		};
++		i2c0: ocores@32000 {
++			compatible = "opencores,i2c-ocores";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0 0x32100 0xa00>;
++			reg-shift = <2>;
++			reg-io-width = <4>;
++			clock-frequency = <32000000>;
++			interrupt-parent = <&pic>;
++			interrupts = <30>;
++		};
++		i2c1: ocores@33000 {
++			compatible = "opencores,i2c-ocores";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0 0x33100 0xa00>;
++			reg-shift = <2>;
++			reg-io-width = <4>;
++			clock-frequency = <32000000>;
++			interrupt-parent = <&pic>;
++			interrupts = <31>;
++
++			rtc@68 {
++				compatible = "dallas,ds1374";
++				reg = <0x68>;
++			};
++
++			dtt@4c {
++				compatible = "national,lm90";
++				reg = <0x4c>;
++			};
++		};
++		pic: pic@4000 {
++			compatible = "netlogic,xlp-pic";
++			#address-cells = <0>;
++			#interrupt-cells = <1>;
++			reg = <0 0x4000 0x200>;
++			interrupt-controller;
++		};
++
++		nor_flash@1,0 {
++			compatible = "cfi-flash";
++			#address-cells = <1>;
++			#size-cells = <1>;
++			bank-width = <2>;
++			reg = <1 0 0x1000000>;
++
++			partition@0 {
++				label = "x-loader";
++				reg = <0x0 0x100000>; /* 1M */
++				read-only;
++			};
++
++			partition@100000 {
++				label = "u-boot";
++				reg = <0x100000 0x100000>; /* 1M */
++			};
++
++			partition@200000 {
++				label = "kernel";
++				reg = <0x200000 0x500000>; /* 5M */
++			};
++
++			partition@700000 {
++				label = "rootfs";
++				reg = <0x700000 0x800000>; /* 8M */
++			};
++
++			partition@f00000 {
++				label = "env";
++				reg = <0xf00000 0x100000>; /* 1M */
++				read-only;
++			};
++		};
++	};
++
++	chosen {
++		bootargs = "console=ttyS0,115200 rdinit=/sbin/init";
++	};
++};
+--- /dev/null
++++ b/arch/mips/boot/dts/netlogic/xlp_fvp.dts
+@@ -0,0 +1,118 @@
++/*
++ * XLP2XX Device Tree Source for FVP boards
++ */
++
++/dts-v1/;
++/ {
++	model = "netlogic,XLP-FVP";
++	compatible = "netlogic,xlp";
++	#address-cells = <2>;
++	#size-cells = <2>;
++
++	soc {
++		#address-cells = <2>;
++		#size-cells = <1>;
++		compatible = "simple-bus";
++		ranges = <0 0  0 0x18000000  0x04000000   // PCIe CFG
++			  1 0  0 0x16000000  0x02000000>; // GBU chipselects
++
++		serial0: serial@30000 {
++			device_type = "serial";
++			compatible = "ns16550";
++			reg = <0 0x30100 0xa00>;
++			reg-shift = <2>;
++			reg-io-width = <4>;
++			clock-frequency = <133333333>;
++			interrupt-parent = <&pic>;
++			interrupts = <17>;
++		};
++		serial1: serial@31000 {
++			device_type = "serial";
++			compatible = "ns16550";
++			reg = <0 0x31100 0xa00>;
++			reg-shift = <2>;
++			reg-io-width = <4>;
++			clock-frequency = <133333333>;
++			interrupt-parent = <&pic>;
++			interrupts = <18>;
++		};
++		i2c0: ocores@37100 {
++			compatible = "opencores,i2c-ocores";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0 0x37100 0x20>;
++			reg-shift = <2>;
++			reg-io-width = <4>;
++			clock-frequency = <32000000>;
++			interrupt-parent = <&pic>;
++			interrupts = <30>;
++		};
++		i2c1: ocores@37120 {
++			compatible = "opencores,i2c-ocores";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0 0x37120 0x20>;
++			reg-shift = <2>;
++			reg-io-width = <4>;
++			clock-frequency = <32000000>;
++			interrupt-parent = <&pic>;
++			interrupts = <31>;
++
++			rtc@68 {
++				compatible = "dallas,ds1374";
++				reg = <0x68>;
++			};
++
++			dtt@4c {
++				compatible = "national,lm90";
++				reg = <0x4c>;
++			};
++		};
++		pic: pic@4000 {
++			compatible = "netlogic,xlp-pic";
++			#address-cells = <0>;
++			#interrupt-cells = <1>;
++			reg = <0 0x4000 0x200>;
++			interrupt-controller;
++		};
++
++		nor_flash@1,0 {
++			compatible = "cfi-flash";
++			#address-cells = <1>;
++			#size-cells = <1>;
++			bank-width = <2>;
++			reg = <1 0 0x1000000>;
++
++			partition@0 {
++				label = "x-loader";
++				reg = <0x0 0x100000>; /* 1M */
++				read-only;
++			};
++
++			partition@100000 {
++				label = "u-boot";
++				reg = <0x100000 0x100000>; /* 1M */
++			};
++
++			partition@200000 {
++				label = "kernel";
++				reg = <0x200000 0x500000>; /* 5M */
++			};
++
++			partition@700000 {
++				label = "rootfs";
++				reg = <0x700000 0x800000>; /* 8M */
++			};
++
++			partition@f00000 {
++				label = "env";
++				reg = <0xf00000 0x100000>; /* 1M */
++				read-only;
++			};
++		};
++	};
++
++	chosen {
++		bootargs = "console=ttyS0,115200 rdinit=/sbin/init";
++	};
++};
+--- /dev/null
++++ b/arch/mips/boot/dts/netlogic/xlp_gvp.dts
+@@ -0,0 +1,77 @@
++/*
++ * XLP9XX Device Tree Source for GVP boards
++ */
++
++/dts-v1/;
++/ {
++	model = "netlogic,XLP-GVP";
++	compatible = "netlogic,xlp";
++	#address-cells = <2>;
++	#size-cells = <2>;
++
++	soc {
++		#address-cells = <2>;
++		#size-cells = <1>;
++		compatible = "simple-bus";
++		ranges = <0 0  0 0x18000000  0x04000000   // PCIe CFG
++			  1 0  0 0x16000000  0x02000000>; // GBU chipselects
++
++		serial0: serial@30000 {
++			device_type = "serial";
++			compatible = "ns16550";
++			reg = <0 0x112100 0xa00>;
++			reg-shift = <2>;
++			reg-io-width = <4>;
++			clock-frequency = <125000000>;
++			interrupt-parent = <&pic>;
++			interrupts = <17>;
++		};
++		pic: pic@110000 {
++			compatible = "netlogic,xlp-pic";
++			#address-cells = <0>;
++			#interrupt-cells = <1>;
++			reg = <0 0x110000 0x200>;
++			interrupt-controller;
++		};
++
++		nor_flash@1,0 {
++			compatible = "cfi-flash";
++			#address-cells = <1>;
++			#size-cells = <1>;
++			bank-width = <2>;
++			reg = <1 0 0x1000000>;
++
++			partition@0 {
++				label = "x-loader";
++				reg = <0x0 0x100000>; /* 1M */
++				read-only;
++			};
++
++			partition@100000 {
++				label = "u-boot";
++				reg = <0x100000 0x100000>; /* 1M */
++			};
++
++			partition@200000 {
++				label = "kernel";
++				reg = <0x200000 0x500000>; /* 5M */
++			};
++
++			partition@700000 {
++				label = "rootfs";
++				reg = <0x700000 0x800000>; /* 8M */
++			};
++
++			partition@f00000 {
++				label = "env";
++				reg = <0xf00000 0x100000>; /* 1M */
++				read-only;
++			};
++		};
++
++	};
++
++	chosen {
++		bootargs = "console=ttyS0,115200 rdinit=/sbin/init";
++	};
++};
+--- /dev/null
++++ b/arch/mips/boot/dts/netlogic/xlp_svp.dts
+@@ -0,0 +1,118 @@
++/*
++ * XLP3XX Device Tree Source for SVP boards
++ */
++
++/dts-v1/;
++/ {
++	model = "netlogic,XLP-SVP";
++	compatible = "netlogic,xlp";
++	#address-cells = <2>;
++	#size-cells = <2>;
++
++	soc {
++		#address-cells = <2>;
++		#size-cells = <1>;
++		compatible = "simple-bus";
++		ranges = <0 0  0 0x18000000  0x04000000   // PCIe CFG
++			  1 0  0 0x16000000  0x02000000>; // GBU chipselects
++
++		serial0: serial@30000 {
++			device_type = "serial";
++			compatible = "ns16550";
++			reg = <0 0x30100 0xa00>;
++			reg-shift = <2>;
++			reg-io-width = <4>;
++			clock-frequency = <133333333>;
++			interrupt-parent = <&pic>;
++			interrupts = <17>;
++		};
++		serial1: serial@31000 {
++			device_type = "serial";
++			compatible = "ns16550";
++			reg = <0 0x31100 0xa00>;
++			reg-shift = <2>;
++			reg-io-width = <4>;
++			clock-frequency = <133333333>;
++			interrupt-parent = <&pic>;
++			interrupts = <18>;
++		};
++		i2c0: ocores@32000 {
++			compatible = "opencores,i2c-ocores";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0 0x32100 0xa00>;
++			reg-shift = <2>;
++			reg-io-width = <4>;
++			clock-frequency = <32000000>;
++			interrupt-parent = <&pic>;
++			interrupts = <30>;
++		};
++		i2c1: ocores@33000 {
++			compatible = "opencores,i2c-ocores";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0 0x33100 0xa00>;
++			reg-shift = <2>;
++			reg-io-width = <4>;
++			clock-frequency = <32000000>;
++			interrupt-parent = <&pic>;
++			interrupts = <31>;
++
++			rtc@68 {
++				compatible = "dallas,ds1374";
++				reg = <0x68>;
++			};
++
++			dtt@4c {
++				compatible = "national,lm90";
++				reg = <0x4c>;
++			};
++		};
++		pic: pic@4000 {
++			compatible = "netlogic,xlp-pic";
++			#address-cells = <0>;
++			#interrupt-cells = <1>;
++			reg = <0 0x4000 0x200>;
++			interrupt-controller;
++		};
++
++		nor_flash@1,0 {
++			compatible = "cfi-flash";
++			#address-cells = <1>;
++			#size-cells = <1>;
++			bank-width = <2>;
++			reg = <1 0 0x1000000>;
++
++			partition@0 {
++				label = "x-loader";
++				reg = <0x0 0x100000>; /* 1M */
++				read-only;
++			};
++
++			partition@100000 {
++				label = "u-boot";
++				reg = <0x100000 0x100000>; /* 1M */
++			};
++
++			partition@200000 {
++				label = "kernel";
++				reg = <0x200000 0x500000>; /* 5M */
++			};
++
++			partition@700000 {
++				label = "rootfs";
++				reg = <0x700000 0x800000>; /* 8M */
++			};
++
++			partition@f00000 {
++				label = "env";
++				reg = <0xf00000 0x100000>; /* 1M */
++				read-only;
++			};
++		};
++	};
++
++	chosen {
++		bootargs = "console=ttyS0,115200 rdinit=/sbin/init";
++	};
++};
+--- a/arch/mips/boot/dts/octeon_3xxx.dts
++++ /dev/null
+@@ -1,590 +0,0 @@
+-/dts-v1/;
+-/*
+- * OCTEON 3XXX, 5XXX, 63XX device tree skeleton.
+- *
+- * This device tree is pruned and patched by early boot code before
+- * use.	 Because of this, it contains a super-set of the available
+- * devices and properties.
+- */
+-/ {
+-	compatible = "cavium,octeon-3860";
+-	#address-cells = <2>;
+-	#size-cells = <2>;
+-	interrupt-parent = <&ciu>;
+-
+-	soc@0 {
+-		compatible = "simple-bus";
+-		#address-cells = <2>;
+-		#size-cells = <2>;
+-		ranges; /* Direct mapping */
+-
+-		ciu: interrupt-controller@1070000000000 {
+-			compatible = "cavium,octeon-3860-ciu";
+-			interrupt-controller;
+-			/* Interrupts are specified by two parts:
+-			 * 1) Controller register (0 or 1)
+-			 * 2) Bit within the register (0..63)
+-			 */
+-			#interrupt-cells = <2>;
+-			reg = <0x10700 0x00000000 0x0 0x7000>;
+-		};
+-
+-		gpio: gpio-controller@1070000000800 {
+-			#gpio-cells = <2>;
+-			compatible = "cavium,octeon-3860-gpio";
+-			reg = <0x10700 0x00000800 0x0 0x100>;
+-			gpio-controller;
+-			/* Interrupts are specified by two parts:
+-			 * 1) GPIO pin number (0..15)
+-			 * 2) Triggering (1 - edge rising
+-			 *		  2 - edge falling
+-			 *		  4 - level active high
+-			 *		  8 - level active low)
+-			 */
+-			interrupt-controller;
+-			#interrupt-cells = <2>;
+-			/* The GPIO pin connect to 16 consecutive CUI bits */
+-			interrupts = <0 16>, <0 17>, <0 18>, <0 19>,
+-				     <0 20>, <0 21>, <0 22>, <0 23>,
+-				     <0 24>, <0 25>, <0 26>, <0 27>,
+-				     <0 28>, <0 29>, <0 30>, <0 31>;
+-		};
+-
+-		smi0: mdio@1180000001800 {
+-			compatible = "cavium,octeon-3860-mdio";
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-			reg = <0x11800 0x00001800 0x0 0x40>;
+-
+-			phy0: ethernet-phy@0 {
+-				compatible = "marvell,88e1118";
+-				marvell,reg-init =
+-					/* Fix rx and tx clock transition timing */
+-					<2 0x15 0xffcf 0>, /* Reg 2,21 Clear bits 4, 5 */
+-					/* Adjust LED drive. */
+-					<3 0x11 0 0x442a>, /* Reg 3,17 <- 0442a */
+-					/* irq, blink-activity, blink-link */
+-					<3 0x10 0 0x0242>; /* Reg 3,16 <- 0x0242 */
+-				reg = <0>;
+-			};
+-
+-			phy1: ethernet-phy@1 {
+-				compatible = "marvell,88e1118";
+-				marvell,reg-init =
+-					/* Fix rx and tx clock transition timing */
+-					<2 0x15 0xffcf 0>, /* Reg 2,21 Clear bits 4, 5 */
+-					/* Adjust LED drive. */
+-					<3 0x11 0 0x442a>, /* Reg 3,17 <- 0442a */
+-					/* irq, blink-activity, blink-link */
+-					<3 0x10 0 0x0242>; /* Reg 3,16 <- 0x0242 */
+-				reg = <1>;
+-			};
+-
+-			phy2: ethernet-phy@2 {
+-				reg = <2>;
+-				compatible = "marvell,88e1149r";
+-				marvell,reg-init = <3 0x10 0 0x5777>,
+-					<3 0x11 0 0x00aa>,
+-					<3 0x12 0 0x4105>,
+-					<3 0x13 0 0x0a60>;
+-			};
+-			phy3: ethernet-phy@3 {
+-				reg = <3>;
+-				compatible = "marvell,88e1149r";
+-				marvell,reg-init = <3 0x10 0 0x5777>,
+-					<3 0x11 0 0x00aa>,
+-					<3 0x12 0 0x4105>,
+-					<3 0x13 0 0x0a60>;
+-			};
+-			phy4: ethernet-phy@4 {
+-				reg = <4>;
+-				compatible = "marvell,88e1149r";
+-				marvell,reg-init = <3 0x10 0 0x5777>,
+-					<3 0x11 0 0x00aa>,
+-					<3 0x12 0 0x4105>,
+-					<3 0x13 0 0x0a60>;
+-			};
+-			phy5: ethernet-phy@5 {
+-				reg = <5>;
+-				compatible = "marvell,88e1149r";
+-				marvell,reg-init = <3 0x10 0 0x5777>,
+-					<3 0x11 0 0x00aa>,
+-					<3 0x12 0 0x4105>,
+-					<3 0x13 0 0x0a60>;
+-			};
+-
+-			phy6: ethernet-phy@6 {
+-				reg = <6>;
+-				compatible = "marvell,88e1149r";
+-				marvell,reg-init = <3 0x10 0 0x5777>,
+-					<3 0x11 0 0x00aa>,
+-					<3 0x12 0 0x4105>,
+-					<3 0x13 0 0x0a60>;
+-			};
+-			phy7: ethernet-phy@7 {
+-				reg = <7>;
+-				compatible = "marvell,88e1149r";
+-				marvell,reg-init = <3 0x10 0 0x5777>,
+-					<3 0x11 0 0x00aa>,
+-					<3 0x12 0 0x4105>,
+-					<3 0x13 0 0x0a60>;
+-			};
+-			phy8: ethernet-phy@8 {
+-				reg = <8>;
+-				compatible = "marvell,88e1149r";
+-				marvell,reg-init = <3 0x10 0 0x5777>,
+-					<3 0x11 0 0x00aa>,
+-					<3 0x12 0 0x4105>,
+-					<3 0x13 0 0x0a60>;
+-			};
+-			phy9: ethernet-phy@9 {
+-				reg = <9>;
+-				compatible = "marvell,88e1149r";
+-				marvell,reg-init = <3 0x10 0 0x5777>,
+-					<3 0x11 0 0x00aa>,
+-					<3 0x12 0 0x4105>,
+-					<3 0x13 0 0x0a60>;
+-			};
+-		};
+-
+-		smi1: mdio@1180000001900 {
+-			compatible = "cavium,octeon-3860-mdio";
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-			reg = <0x11800 0x00001900 0x0 0x40>;
+-
+-			phy100: ethernet-phy@1 {
+-				reg = <1>;
+-				compatible = "marvell,88e1149r";
+-				marvell,reg-init = <3 0x10 0 0x5777>,
+-					<3 0x11 0 0x00aa>,
+-					<3 0x12 0 0x4105>,
+-					<3 0x13 0 0x0a60>;
+-				interrupt-parent = <&gpio>;
+-				interrupts = <12 8>; /* Pin 12, active low */
+-			};
+-			phy101: ethernet-phy@2 {
+-				reg = <2>;
+-				compatible = "marvell,88e1149r";
+-				marvell,reg-init = <3 0x10 0 0x5777>,
+-					<3 0x11 0 0x00aa>,
+-					<3 0x12 0 0x4105>,
+-					<3 0x13 0 0x0a60>;
+-				interrupt-parent = <&gpio>;
+-				interrupts = <12 8>; /* Pin 12, active low */
+-			};
+-			phy102: ethernet-phy@3 {
+-				reg = <3>;
+-				compatible = "marvell,88e1149r";
+-				marvell,reg-init = <3 0x10 0 0x5777>,
+-					<3 0x11 0 0x00aa>,
+-					<3 0x12 0 0x4105>,
+-					<3 0x13 0 0x0a60>;
+-				interrupt-parent = <&gpio>;
+-				interrupts = <12 8>; /* Pin 12, active low */
+-			};
+-			phy103: ethernet-phy@4 {
+-				reg = <4>;
+-				compatible = "marvell,88e1149r";
+-				marvell,reg-init = <3 0x10 0 0x5777>,
+-					<3 0x11 0 0x00aa>,
+-					<3 0x12 0 0x4105>,
+-					<3 0x13 0 0x0a60>;
+-				interrupt-parent = <&gpio>;
+-				interrupts = <12 8>; /* Pin 12, active low */
+-			};
+-		};
+-
+-		mix0: ethernet@1070000100000 {
+-			compatible = "cavium,octeon-5750-mix";
+-			reg = <0x10700 0x00100000 0x0 0x100>, /* MIX */
+-			      <0x11800 0xE0000000 0x0 0x300>, /* AGL */
+-			      <0x11800 0xE0000400 0x0 0x400>, /* AGL_SHARED  */
+-			      <0x11800 0xE0002000 0x0 0x8>;   /* AGL_PRT_CTL */
+-			cell-index = <0>;
+-			interrupts = <0 62>, <1 46>;
+-			local-mac-address = [ 00 00 00 00 00 00 ];
+-			phy-handle = <&phy0>;
+-		};
+-
+-		mix1: ethernet@1070000100800 {
+-			compatible = "cavium,octeon-5750-mix";
+-			reg = <0x10700 0x00100800 0x0 0x100>, /* MIX */
+-			      <0x11800 0xE0000800 0x0 0x300>, /* AGL */
+-			      <0x11800 0xE0000400 0x0 0x400>, /* AGL_SHARED  */
+-			      <0x11800 0xE0002008 0x0 0x8>;   /* AGL_PRT_CTL */
+-			cell-index = <1>;
+-			interrupts = <1 18>, < 1 46>;
+-			local-mac-address = [ 00 00 00 00 00 00 ];
+-			phy-handle = <&phy1>;
+-		};
+-
+-		pip: pip@11800a0000000 {
+-			compatible = "cavium,octeon-3860-pip";
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-			reg = <0x11800 0xa0000000 0x0 0x2000>;
+-
+-			interface@0 {
+-				compatible = "cavium,octeon-3860-pip-interface";
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-				reg = <0>; /* interface */
+-
+-				ethernet@0 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x0>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-					phy-handle = <&phy2>;
+-					cavium,alt-phy-handle = <&phy100>;
+-				};
+-				ethernet@1 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x1>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-					phy-handle = <&phy3>;
+-					cavium,alt-phy-handle = <&phy101>;
+-				};
+-				ethernet@2 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x2>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-					phy-handle = <&phy4>;
+-					cavium,alt-phy-handle = <&phy102>;
+-				};
+-				ethernet@3 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x3>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-					phy-handle = <&phy5>;
+-					cavium,alt-phy-handle = <&phy103>;
+-				};
+-				ethernet@4 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x4>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-				};
+-				ethernet@5 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x5>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-				};
+-				ethernet@6 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x6>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-				};
+-				ethernet@7 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x7>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-				};
+-				ethernet@8 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x8>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-				};
+-				ethernet@9 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x9>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-				};
+-				ethernet@a {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0xa>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-				};
+-				ethernet@b {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0xb>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-				};
+-				ethernet@c {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0xc>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-				};
+-				ethernet@d {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0xd>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-				};
+-				ethernet@e {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0xe>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-				};
+-				ethernet@f {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0xf>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-				};
+-			};
+-
+-			interface@1 {
+-				compatible = "cavium,octeon-3860-pip-interface";
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-				reg = <1>; /* interface */
+-
+-				ethernet@0 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x0>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-					phy-handle = <&phy6>;
+-				};
+-				ethernet@1 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x1>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-					phy-handle = <&phy7>;
+-				};
+-				ethernet@2 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x2>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-					phy-handle = <&phy8>;
+-				};
+-				ethernet@3 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x3>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-					phy-handle = <&phy9>;
+-				};
+-			};
+-		};
+-
+-		twsi0: i2c@1180000001000 {
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-			compatible = "cavium,octeon-3860-twsi";
+-			reg = <0x11800 0x00001000 0x0 0x200>;
+-			interrupts = <0 45>;
+-			clock-frequency = <100000>;
+-
+-			rtc@68 {
+-				compatible = "dallas,ds1337";
+-				reg = <0x68>;
+-			};
+-			tmp@4c {
+-				compatible = "ti,tmp421";
+-				reg = <0x4c>;
+-			};
+-		};
+-
+-		twsi1: i2c@1180000001200 {
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-			compatible = "cavium,octeon-3860-twsi";
+-			reg = <0x11800 0x00001200 0x0 0x200>;
+-			interrupts = <0 59>;
+-			clock-frequency = <100000>;
+-		};
+-
+-		uart0: serial@1180000000800 {
+-			compatible = "cavium,octeon-3860-uart","ns16550";
+-			reg = <0x11800 0x00000800 0x0 0x400>;
+-			clock-frequency = <0>;
+-			current-speed = <115200>;
+-			reg-shift = <3>;
+-			interrupts = <0 34>;
+-		};
+-
+-		uart1: serial@1180000000c00 {
+-			compatible = "cavium,octeon-3860-uart","ns16550";
+-			reg = <0x11800 0x00000c00 0x0 0x400>;
+-			clock-frequency = <0>;
+-			current-speed = <115200>;
+-			reg-shift = <3>;
+-			interrupts = <0 35>;
+-		};
+-
+-		uart2: serial@1180000000400 {
+-			compatible = "cavium,octeon-3860-uart","ns16550";
+-			reg = <0x11800 0x00000400 0x0 0x400>;
+-			clock-frequency = <0>;
+-			current-speed = <115200>;
+-			reg-shift = <3>;
+-			interrupts = <1 16>;
+-		};
+-
+-		bootbus: bootbus@1180000000000 {
+-			compatible = "cavium,octeon-3860-bootbus";
+-			reg = <0x11800 0x00000000 0x0 0x200>;
+-			/* The chip select number and offset */
+-			#address-cells = <2>;
+-			/* The size of the chip select region */
+-			#size-cells = <1>;
+-			ranges = <0 0  0x0 0x1f400000  0xc00000>,
+-				 <1 0  0x10000 0x30000000  0>,
+-				 <2 0  0x10000 0x40000000  0>,
+-				 <3 0  0x10000 0x50000000  0>,
+-				 <4 0  0x0 0x1d020000  0x10000>,
+-				 <5 0  0x0 0x1d040000  0x10000>,
+-				 <6 0  0x0 0x1d050000  0x10000>,
+-				 <7 0  0x10000 0x90000000  0>;
+-
+-			cavium,cs-config@0 {
+-				compatible = "cavium,octeon-3860-bootbus-config";
+-				cavium,cs-index = <0>;
+-				cavium,t-adr  = <20>;
+-				cavium,t-ce   = <60>;
+-				cavium,t-oe   = <60>;
+-				cavium,t-we   = <45>;
+-				cavium,t-rd-hld = <35>;
+-				cavium,t-wr-hld = <45>;
+-				cavium,t-pause	= <0>;
+-				cavium,t-wait	= <0>;
+-				cavium,t-page	= <35>;
+-				cavium,t-rd-dly = <0>;
+-
+-				cavium,pages	 = <0>;
+-				cavium,bus-width = <8>;
+-			};
+-			cavium,cs-config@4 {
+-				compatible = "cavium,octeon-3860-bootbus-config";
+-				cavium,cs-index = <4>;
+-				cavium,t-adr  = <320>;
+-				cavium,t-ce   = <320>;
+-				cavium,t-oe   = <320>;
+-				cavium,t-we   = <320>;
+-				cavium,t-rd-hld = <320>;
+-				cavium,t-wr-hld = <320>;
+-				cavium,t-pause	= <320>;
+-				cavium,t-wait	= <320>;
+-				cavium,t-page	= <320>;
+-				cavium,t-rd-dly = <0>;
+-
+-				cavium,pages	 = <0>;
+-				cavium,bus-width = <8>;
+-			};
+-			cavium,cs-config@5 {
+-				compatible = "cavium,octeon-3860-bootbus-config";
+-				cavium,cs-index = <5>;
+-				cavium,t-adr  = <5>;
+-				cavium,t-ce   = <300>;
+-				cavium,t-oe   = <125>;
+-				cavium,t-we   = <150>;
+-				cavium,t-rd-hld = <100>;
+-				cavium,t-wr-hld = <30>;
+-				cavium,t-pause	= <0>;
+-				cavium,t-wait	= <30>;
+-				cavium,t-page	= <320>;
+-				cavium,t-rd-dly = <0>;
+-
+-				cavium,pages	 = <0>;
+-				cavium,bus-width = <16>;
+-			};
+-			cavium,cs-config@6 {
+-				compatible = "cavium,octeon-3860-bootbus-config";
+-				cavium,cs-index = <6>;
+-				cavium,t-adr  = <5>;
+-				cavium,t-ce   = <300>;
+-				cavium,t-oe   = <270>;
+-				cavium,t-we   = <150>;
+-				cavium,t-rd-hld = <100>;
+-				cavium,t-wr-hld = <70>;
+-				cavium,t-pause	= <0>;
+-				cavium,t-wait	= <0>;
+-				cavium,t-page	= <320>;
+-				cavium,t-rd-dly = <0>;
+-
+-				cavium,pages	 = <0>;
+-				cavium,wait-mode;
+-				cavium,bus-width = <16>;
+-			};
+-
+-			flash0: nor@0,0 {
+-				compatible = "cfi-flash";
+-				reg = <0 0 0x800000>;
+-				#address-cells = <1>;
+-				#size-cells = <1>;
+-			};
+-
+-			led0: led-display@4,0 {
+-				compatible = "avago,hdsp-253x";
+-				reg = <4 0x20 0x20>, <4 0 0x20>;
+-			};
+-
+-			cf0: compact-flash@5,0 {
+-				compatible = "cavium,ebt3000-compact-flash";
+-				reg = <5 0 0x10000>, <6 0 0x10000>;
+-				cavium,bus-width = <16>;
+-				cavium,true-ide;
+-				cavium,dma-engine-handle = <&dma0>;
+-			};
+-		};
+-
+-		dma0: dma-engine@1180000000100 {
+-			compatible = "cavium,octeon-5750-bootbus-dma";
+-			reg = <0x11800 0x00000100 0x0 0x8>;
+-			interrupts = <0 63>;
+-		};
+-		dma1: dma-engine@1180000000108 {
+-			compatible = "cavium,octeon-5750-bootbus-dma";
+-			reg = <0x11800 0x00000108 0x0 0x8>;
+-			interrupts = <0 63>;
+-		};
+-
+-		uctl: uctl@118006f000000 {
+-			compatible = "cavium,octeon-6335-uctl";
+-			reg = <0x11800 0x6f000000 0x0 0x100>;
+-			ranges; /* Direct mapping */
+-			#address-cells = <2>;
+-			#size-cells = <2>;
+-			/* 12MHz, 24MHz and 48MHz allowed */
+-			refclk-frequency = <12000000>;
+-			/* Either "crystal" or "external" */
+-			refclk-type = "crystal";
+-
+-			ehci@16f0000000000 {
+-				compatible = "cavium,octeon-6335-ehci","usb-ehci";
+-				reg = <0x16f00 0x00000000 0x0 0x100>;
+-				interrupts = <0 56>;
+-				big-endian-regs;
+-			};
+-			ohci@16f0000000400 {
+-				compatible = "cavium,octeon-6335-ohci","usb-ohci";
+-				reg = <0x16f00 0x00000400 0x0 0x100>;
+-				interrupts = <0 56>;
+-				big-endian-regs;
+-			};
+-		};
+-
+-		usbn: usbn@1180068000000 {
+-			compatible = "cavium,octeon-5750-usbn";
+-			reg = <0x11800 0x68000000 0x0 0x1000>;
+-			ranges; /* Direct mapping */
+-			#address-cells = <2>;
+-			#size-cells = <2>;
+-			/* 12MHz, 24MHz and 48MHz allowed */
+-			refclk-frequency = <12000000>;
+-			/* Either "crystal" or "external" */
+-			refclk-type = "crystal";
+-
+-			usbc@16f0010000000 {
+-				compatible = "cavium,octeon-5750-usbc";
+-				reg = <0x16f00 0x10000000 0x0 0x80000>;
+-				interrupts = <0 56>;
+-			};
+-		};
+-	};
+-
+-	aliases {
+-		mix0 = &mix0;
+-		mix1 = &mix1;
+-		pip = &pip;
+-		smi0 = &smi0;
+-		smi1 = &smi1;
+-		twsi0 = &twsi0;
+-		twsi1 = &twsi1;
+-		uart0 = &uart0;
+-		uart1 = &uart1;
+-		uart2 = &uart2;
+-		flash0 = &flash0;
+-		cf0 = &cf0;
+-		uctl = &uctl;
+-		usbn = &usbn;
+-		led0 = &led0;
+-	};
+- };
+--- a/arch/mips/boot/dts/octeon_68xx.dts
++++ /dev/null
+@@ -1,625 +0,0 @@
+-/dts-v1/;
+-/*
+- * OCTEON 68XX device tree skeleton.
+- *
+- * This device tree is pruned and patched by early boot code before
+- * use.	 Because of this, it contains a super-set of the available
+- * devices and properties.
+- */
+-/ {
+-	compatible = "cavium,octeon-6880";
+-	#address-cells = <2>;
+-	#size-cells = <2>;
+-	interrupt-parent = <&ciu2>;
+-
+-	soc@0 {
+-		compatible = "simple-bus";
+-		#address-cells = <2>;
+-		#size-cells = <2>;
+-		ranges; /* Direct mapping */
+-
+-		ciu2: interrupt-controller@1070100000000 {
+-			compatible = "cavium,octeon-6880-ciu2";
+-			interrupt-controller;
+-			/* Interrupts are specified by two parts:
+-			 * 1) Controller register (0 or 7)
+-			 * 2) Bit within the register (0..63)
+-			 */
+-			#address-cells = <0>;
+-			#interrupt-cells = <2>;
+-			reg = <0x10701 0x00000000 0x0 0x4000000>;
+-		};
+-
+-		gpio: gpio-controller@1070000000800 {
+-			#gpio-cells = <2>;
+-			compatible = "cavium,octeon-3860-gpio";
+-			reg = <0x10700 0x00000800 0x0 0x100>;
+-			gpio-controller;
+-			/* Interrupts are specified by two parts:
+-			 * 1) GPIO pin number (0..15)
+-			 * 2) Triggering (1 - edge rising
+-			 *		  2 - edge falling
+-			 *		  4 - level active high
+-			 *		  8 - level active low)
+-			 */
+-			interrupt-controller;
+-			#interrupt-cells = <2>;
+-			/* The GPIO pins connect to 16 consecutive CUI bits */
+-			interrupts = <7 0>,  <7 1>,  <7 2>,  <7 3>,
+-				     <7 4>,  <7 5>,  <7 6>,  <7 7>,
+-				     <7 8>,  <7 9>,  <7 10>, <7 11>,
+-				     <7 12>, <7 13>, <7 14>, <7 15>;
+-		};
+-
+-		smi0: mdio@1180000003800 {
+-			compatible = "cavium,octeon-3860-mdio";
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-			reg = <0x11800 0x00003800 0x0 0x40>;
+-
+-			phy0: ethernet-phy@6 {
+-				compatible = "marvell,88e1118";
+-				marvell,reg-init =
+-					/* Fix rx and tx clock transition timing */
+-					<2 0x15 0xffcf 0>, /* Reg 2,21 Clear bits 4, 5 */
+-					/* Adjust LED drive. */
+-					<3 0x11 0 0x442a>, /* Reg 3,17 <- 0442a */
+-					/* irq, blink-activity, blink-link */
+-					<3 0x10 0 0x0242>; /* Reg 3,16 <- 0x0242 */
+-				reg = <6>;
+-			};
+-
+-			phy1: ethernet-phy@1 {
+-				cavium,qlm-trim = "4,sgmii";
+-				reg = <1>;
+-				compatible = "marvell,88e1149r";
+-				marvell,reg-init = <3 0x10 0 0x5777>,
+-					<3 0x11 0 0x00aa>,
+-					<3 0x12 0 0x4105>,
+-					<3 0x13 0 0x0a60>;
+-			};
+-			phy2: ethernet-phy@2 {
+-				cavium,qlm-trim = "4,sgmii";
+-				reg = <2>;
+-				compatible = "marvell,88e1149r";
+-				marvell,reg-init = <3 0x10 0 0x5777>,
+-					<3 0x11 0 0x00aa>,
+-					<3 0x12 0 0x4105>,
+-					<3 0x13 0 0x0a60>;
+-			};
+-			phy3: ethernet-phy@3 {
+-				cavium,qlm-trim = "4,sgmii";
+-				reg = <3>;
+-				compatible = "marvell,88e1149r";
+-				marvell,reg-init = <3 0x10 0 0x5777>,
+-					<3 0x11 0 0x00aa>,
+-					<3 0x12 0 0x4105>,
+-					<3 0x13 0 0x0a60>;
+-			};
+-			phy4: ethernet-phy@4 {
+-				cavium,qlm-trim = "4,sgmii";
+-				reg = <4>;
+-				compatible = "marvell,88e1149r";
+-				marvell,reg-init = <3 0x10 0 0x5777>,
+-					<3 0x11 0 0x00aa>,
+-					<3 0x12 0 0x4105>,
+-					<3 0x13 0 0x0a60>;
+-			};
+-		};
+-
+-		smi1: mdio@1180000003880 {
+-			compatible = "cavium,octeon-3860-mdio";
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-			reg = <0x11800 0x00003880 0x0 0x40>;
+-
+-			phy41: ethernet-phy@1 {
+-				cavium,qlm-trim = "0,sgmii";
+-				reg = <1>;
+-				compatible = "marvell,88e1149r";
+-				marvell,reg-init = <3 0x10 0 0x5777>,
+-					<3 0x11 0 0x00aa>,
+-					<3 0x12 0 0x4105>,
+-					<3 0x13 0 0x0a60>;
+-			};
+-			phy42: ethernet-phy@2 {
+-				cavium,qlm-trim = "0,sgmii";
+-				reg = <2>;
+-				compatible = "marvell,88e1149r";
+-				marvell,reg-init = <3 0x10 0 0x5777>,
+-					<3 0x11 0 0x00aa>,
+-					<3 0x12 0 0x4105>,
+-					<3 0x13 0 0x0a60>;
+-			};
+-			phy43: ethernet-phy@3 {
+-				cavium,qlm-trim = "0,sgmii";
+-				reg = <3>;
+-				compatible = "marvell,88e1149r";
+-				marvell,reg-init = <3 0x10 0 0x5777>,
+-					<3 0x11 0 0x00aa>,
+-					<3 0x12 0 0x4105>,
+-					<3 0x13 0 0x0a60>;
+-			};
+-			phy44: ethernet-phy@4 {
+-				cavium,qlm-trim = "0,sgmii";
+-				reg = <4>;
+-				compatible = "marvell,88e1149r";
+-				marvell,reg-init = <3 0x10 0 0x5777>,
+-					<3 0x11 0 0x00aa>,
+-					<3 0x12 0 0x4105>,
+-					<3 0x13 0 0x0a60>;
+-			};
+-		};
+-
+-		smi2: mdio@1180000003900 {
+-			compatible = "cavium,octeon-3860-mdio";
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-			reg = <0x11800 0x00003900 0x0 0x40>;
+-
+-			phy21: ethernet-phy@1 {
+-				cavium,qlm-trim = "2,sgmii";
+-				reg = <1>;
+-				compatible = "marvell,88e1149r";
+-				marvell,reg-init = <3 0x10 0 0x5777>,
+-					<3 0x11 0 0x00aa>,
+-					<3 0x12 0 0x4105>,
+-					<3 0x13 0 0x0a60>;
+-			};
+-			phy22: ethernet-phy@2 {
+-				cavium,qlm-trim = "2,sgmii";
+-				reg = <2>;
+-				compatible = "marvell,88e1149r";
+-				marvell,reg-init = <3 0x10 0 0x5777>,
+-					<3 0x11 0 0x00aa>,
+-					<3 0x12 0 0x4105>,
+-					<3 0x13 0 0x0a60>;
+-			};
+-			phy23: ethernet-phy@3 {
+-				cavium,qlm-trim = "2,sgmii";
+-				reg = <3>;
+-				compatible = "marvell,88e1149r";
+-				marvell,reg-init = <3 0x10 0 0x5777>,
+-					<3 0x11 0 0x00aa>,
+-					<3 0x12 0 0x4105>,
+-					<3 0x13 0 0x0a60>;
+-			};
+-			phy24: ethernet-phy@4 {
+-				cavium,qlm-trim = "2,sgmii";
+-				reg = <4>;
+-				compatible = "marvell,88e1149r";
+-				marvell,reg-init = <3 0x10 0 0x5777>,
+-					<3 0x11 0 0x00aa>,
+-					<3 0x12 0 0x4105>,
+-					<3 0x13 0 0x0a60>;
+-			};
+-		};
+-
+-		smi3: mdio@1180000003980 {
+-			compatible = "cavium,octeon-3860-mdio";
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-			reg = <0x11800 0x00003980 0x0 0x40>;
+-
+-			phy11: ethernet-phy@1 {
+-				cavium,qlm-trim = "3,sgmii";
+-				reg = <1>;
+-				compatible = "marvell,88e1149r";
+-				marvell,reg-init = <3 0x10 0 0x5777>,
+-					<3 0x11 0 0x00aa>,
+-					<3 0x12 0 0x4105>,
+-					<3 0x13 0 0x0a60>;
+-			};
+-			phy12: ethernet-phy@2 {
+-				cavium,qlm-trim = "3,sgmii";
+-				reg = <2>;
+-				compatible = "marvell,88e1149r";
+-				marvell,reg-init = <3 0x10 0 0x5777>,
+-					<3 0x11 0 0x00aa>,
+-					<3 0x12 0 0x4105>,
+-					<3 0x13 0 0x0a60>;
+-			};
+-			phy13: ethernet-phy@3 {
+-				cavium,qlm-trim = "3,sgmii";
+-				reg = <3>;
+-				compatible = "marvell,88e1149r";
+-				marvell,reg-init = <3 0x10 0 0x5777>,
+-					<3 0x11 0 0x00aa>,
+-					<3 0x12 0 0x4105>,
+-					<3 0x13 0 0x0a60>;
+-			};
+-			phy14: ethernet-phy@4 {
+-				cavium,qlm-trim = "3,sgmii";
+-				reg = <4>;
+-				compatible = "marvell,88e1149r";
+-				marvell,reg-init = <3 0x10 0 0x5777>,
+-					<3 0x11 0 0x00aa>,
+-					<3 0x12 0 0x4105>,
+-					<3 0x13 0 0x0a60>;
+-			};
+-		};
+-
+-		mix0: ethernet@1070000100000 {
+-			compatible = "cavium,octeon-5750-mix";
+-			reg = <0x10700 0x00100000 0x0 0x100>, /* MIX */
+-			      <0x11800 0xE0000000 0x0 0x300>, /* AGL */
+-			      <0x11800 0xE0000400 0x0 0x400>, /* AGL_SHARED  */
+-			      <0x11800 0xE0002000 0x0 0x8>;   /* AGL_PRT_CTL */
+-			cell-index = <0>;
+-			interrupts = <6 40>, <6 32>;
+-			local-mac-address = [ 00 00 00 00 00 00 ];
+-			phy-handle = <&phy0>;
+-		};
+-
+-		pip: pip@11800a0000000 {
+-			compatible = "cavium,octeon-3860-pip";
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-			reg = <0x11800 0xa0000000 0x0 0x2000>;
+-
+-			interface@4 {
+-				compatible = "cavium,octeon-3860-pip-interface";
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-				reg = <0x4>; /* interface */
+-
+-				ethernet@0 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x0>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-					phy-handle = <&phy1>;
+-				};
+-				ethernet@1 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x1>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-					phy-handle = <&phy2>;
+-				};
+-				ethernet@2 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x2>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-					phy-handle = <&phy3>;
+-				};
+-				ethernet@3 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x3>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-					phy-handle = <&phy4>;
+-				};
+-			};
+-
+-			interface@3 {
+-				compatible = "cavium,octeon-3860-pip-interface";
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-				reg = <0x3>; /* interface */
+-
+-				ethernet@0 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x0>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-					phy-handle = <&phy11>;
+-				};
+-				ethernet@1 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x1>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-					phy-handle = <&phy12>;
+-				};
+-				ethernet@2 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x2>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-					phy-handle = <&phy13>;
+-				};
+-				ethernet@3 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x3>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-					phy-handle = <&phy14>;
+-				};
+-			};
+-
+-			interface@2 {
+-				compatible = "cavium,octeon-3860-pip-interface";
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-				reg = <0x2>; /* interface */
+-
+-				ethernet@0 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x0>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-					phy-handle = <&phy21>;
+-				};
+-				ethernet@1 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x1>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-					phy-handle = <&phy22>;
+-				};
+-				ethernet@2 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x2>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-					phy-handle = <&phy23>;
+-				};
+-				ethernet@3 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x3>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-					phy-handle = <&phy24>;
+-				};
+-			};
+-
+-			interface@1 {
+-				compatible = "cavium,octeon-3860-pip-interface";
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-				reg = <0x1>; /* interface */
+-
+-				ethernet@0 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x0>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-				};
+-			};
+-
+-			interface@0 {
+-				compatible = "cavium,octeon-3860-pip-interface";
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-				reg = <0x0>; /* interface */
+-
+-				ethernet@0 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x0>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-					phy-handle = <&phy41>;
+-				};
+-				ethernet@1 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x1>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-					phy-handle = <&phy42>;
+-				};
+-				ethernet@2 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x2>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-					phy-handle = <&phy43>;
+-				};
+-				ethernet@3 {
+-					compatible = "cavium,octeon-3860-pip-port";
+-					reg = <0x3>; /* Port */
+-					local-mac-address = [ 00 00 00 00 00 00 ];
+-					phy-handle = <&phy44>;
+-				};
+-			};
+-		};
+-
+-		twsi0: i2c@1180000001000 {
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-			compatible = "cavium,octeon-3860-twsi";
+-			reg = <0x11800 0x00001000 0x0 0x200>;
+-			interrupts = <3 32>;
+-			clock-frequency = <100000>;
+-
+-			rtc@68 {
+-				compatible = "dallas,ds1337";
+-				reg = <0x68>;
+-			};
+-			tmp@4c {
+-				compatible = "ti,tmp421";
+-				reg = <0x4c>;
+-			};
+-		};
+-
+-		twsi1: i2c@1180000001200 {
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-			compatible = "cavium,octeon-3860-twsi";
+-			reg = <0x11800 0x00001200 0x0 0x200>;
+-			interrupts = <3 33>;
+-			clock-frequency = <100000>;
+-		};
+-
+-		uart0: serial@1180000000800 {
+-			compatible = "cavium,octeon-3860-uart","ns16550";
+-			reg = <0x11800 0x00000800 0x0 0x400>;
+-			clock-frequency = <0>;
+-			current-speed = <115200>;
+-			reg-shift = <3>;
+-			interrupts = <3 36>;
+-		};
+-
+-		uart1: serial@1180000000c00 {
+-			compatible = "cavium,octeon-3860-uart","ns16550";
+-			reg = <0x11800 0x00000c00 0x0 0x400>;
+-			clock-frequency = <0>;
+-			current-speed = <115200>;
+-			reg-shift = <3>;
+-			interrupts = <3 37>;
+-		};
+-
+-		bootbus: bootbus@1180000000000 {
+-			compatible = "cavium,octeon-3860-bootbus";
+-			reg = <0x11800 0x00000000 0x0 0x200>;
+-			/* The chip select number and offset */
+-			#address-cells = <2>;
+-			/* The size of the chip select region */
+-			#size-cells = <1>;
+-			ranges = <0 0  0       0x1f400000  0xc00000>,
+-				 <1 0  0x10000 0x30000000  0>,
+-				 <2 0  0x10000 0x40000000  0>,
+-				 <3 0  0x10000 0x50000000  0>,
+-				 <4 0  0       0x1d020000  0x10000>,
+-				 <5 0  0       0x1d040000  0x10000>,
+-				 <6 0  0       0x1d050000  0x10000>,
+-				 <7 0  0x10000 0x90000000  0>;
+-
+-			cavium,cs-config@0 {
+-				compatible = "cavium,octeon-3860-bootbus-config";
+-				cavium,cs-index = <0>;
+-				cavium,t-adr  = <10>;
+-				cavium,t-ce   = <50>;
+-				cavium,t-oe   = <50>;
+-				cavium,t-we   = <35>;
+-				cavium,t-rd-hld = <25>;
+-				cavium,t-wr-hld = <35>;
+-				cavium,t-pause	= <0>;
+-				cavium,t-wait	= <300>;
+-				cavium,t-page	= <25>;
+-				cavium,t-rd-dly = <0>;
+-
+-				cavium,pages	 = <0>;
+-				cavium,bus-width = <8>;
+-			};
+-			cavium,cs-config@4 {
+-				compatible = "cavium,octeon-3860-bootbus-config";
+-				cavium,cs-index = <4>;
+-				cavium,t-adr  = <320>;
+-				cavium,t-ce   = <320>;
+-				cavium,t-oe   = <320>;
+-				cavium,t-we   = <320>;
+-				cavium,t-rd-hld = <320>;
+-				cavium,t-wr-hld = <320>;
+-				cavium,t-pause	= <320>;
+-				cavium,t-wait	= <320>;
+-				cavium,t-page	= <320>;
+-				cavium,t-rd-dly = <0>;
+-
+-				cavium,pages	 = <0>;
+-				cavium,bus-width = <8>;
+-			};
+-			cavium,cs-config@5 {
+-				compatible = "cavium,octeon-3860-bootbus-config";
+-				cavium,cs-index = <5>;
+-				cavium,t-adr  = <0>;
+-				cavium,t-ce   = <300>;
+-				cavium,t-oe   = <125>;
+-				cavium,t-we   = <150>;
+-				cavium,t-rd-hld = <100>;
+-				cavium,t-wr-hld = <300>;
+-				cavium,t-pause	= <0>;
+-				cavium,t-wait	= <300>;
+-				cavium,t-page	= <310>;
+-				cavium,t-rd-dly = <0>;
+-
+-				cavium,pages	 = <0>;
+-				cavium,bus-width = <16>;
+-			};
+-			cavium,cs-config@6 {
+-				compatible = "cavium,octeon-3860-bootbus-config";
+-				cavium,cs-index = <6>;
+-				cavium,t-adr  = <0>;
+-				cavium,t-ce   = <30>;
+-				cavium,t-oe   = <125>;
+-				cavium,t-we   = <150>;
+-				cavium,t-rd-hld = <100>;
+-				cavium,t-wr-hld = <30>;
+-				cavium,t-pause	= <0>;
+-				cavium,t-wait	= <30>;
+-				cavium,t-page	= <310>;
+-				cavium,t-rd-dly = <0>;
+-
+-				cavium,pages	 = <0>;
+-				cavium,wait-mode;
+-				cavium,bus-width = <16>;
+-			};
+-
+-			flash0: nor@0,0 {
+-				compatible = "cfi-flash";
+-				reg = <0 0 0x800000>;
+-				#address-cells = <1>;
+-				#size-cells = <1>;
+-
+-				partition@0 {
+-					label = "bootloader";
+-					reg = <0 0x200000>;
+-					read-only;
+-				};
+-				partition@200000 {
+-					label = "kernel";
+-					reg = <0x200000 0x200000>;
+-				};
+-				partition@400000 {
+-					label = "cramfs";
+-					reg = <0x400000 0x3fe000>;
+-				};
+-				partition@7fe000 {
+-					label = "environment";
+-					reg = <0x7fe000 0x2000>;
+-					read-only;
+-				};
+-			};
+-
+-			led0: led-display@4,0 {
+-				compatible = "avago,hdsp-253x";
+-				reg = <4 0x20 0x20>, <4 0 0x20>;
+-			};
+-
+-			compact-flash@5,0 {
+-				compatible = "cavium,ebt3000-compact-flash";
+-				reg = <5 0 0x10000>, <6 0 0x10000>;
+-				cavium,bus-width = <16>;
+-				cavium,true-ide;
+-				cavium,dma-engine-handle = <&dma0>;
+-			};
+-		};
+-
+-		dma0: dma-engine@1180000000100 {
+-			compatible = "cavium,octeon-5750-bootbus-dma";
+-			reg = <0x11800 0x00000100 0x0 0x8>;
+-			interrupts = <0 63>;
+-		};
+-		dma1: dma-engine@1180000000108 {
+-			compatible = "cavium,octeon-5750-bootbus-dma";
+-			reg = <0x11800 0x00000108 0x0 0x8>;
+-			interrupts = <0 63>;
+-		};
+-
+-		uctl: uctl@118006f000000 {
+-			compatible = "cavium,octeon-6335-uctl";
+-			reg = <0x11800 0x6f000000 0x0 0x100>;
+-			ranges; /* Direct mapping */
+-			#address-cells = <2>;
+-			#size-cells = <2>;
+-			/* 12MHz, 24MHz and 48MHz allowed */
+-			refclk-frequency = <12000000>;
+-			/* Either "crystal" or "external" */
+-			refclk-type = "crystal";
+-
+-			ehci@16f0000000000 {
+-				compatible = "cavium,octeon-6335-ehci","usb-ehci";
+-				reg = <0x16f00 0x00000000 0x0 0x100>;
+-				interrupts = <3 44>;
+-				big-endian-regs;
+-			};
+-			ohci@16f0000000400 {
+-				compatible = "cavium,octeon-6335-ohci","usb-ohci";
+-				reg = <0x16f00 0x00000400 0x0 0x100>;
+-				interrupts = <3 44>;
+-				big-endian-regs;
+-			};
+-		};
+-	};
+-
+-	aliases {
+-		mix0 = &mix0;
+-		pip = &pip;
+-		smi0 = &smi0;
+-		smi1 = &smi1;
+-		smi2 = &smi2;
+-		smi3 = &smi3;
+-		twsi0 = &twsi0;
+-		twsi1 = &twsi1;
+-		uart0 = &uart0;
+-		uart1 = &uart1;
+-		uctl = &uctl;
+-		led0 = &led0;
+-		flash0 = &flash0;
+-	};
+- };
+--- /dev/null
++++ b/arch/mips/boot/dts/ralink/mt7620a.dtsi
+@@ -0,0 +1,58 @@
++/ {
++	#address-cells = <1>;
++	#size-cells = <1>;
++	compatible = "ralink,mtk7620a-soc";
++
++	cpus {
++		cpu@0 {
++			compatible = "mips,mips24KEc";
++		};
++	};
++
++	cpuintc: cpuintc@0 {
++		#address-cells = <0>;
++		#interrupt-cells = <1>;
++		interrupt-controller;
++		compatible = "mti,cpu-interrupt-controller";
++	};
++
++	palmbus@10000000 {
++		compatible = "palmbus";
++		reg = <0x10000000 0x200000>;
++                ranges = <0x0 0x10000000 0x1FFFFF>;
++
++		#address-cells = <1>;
++		#size-cells = <1>;
++
++		sysc@0 {
++			compatible = "ralink,mt7620a-sysc";
++			reg = <0x0 0x100>;
++		};
++
++		intc: intc@200 {
++			compatible = "ralink,mt7620a-intc", "ralink,rt2880-intc";
++			reg = <0x200 0x100>;
++
++			interrupt-controller;
++			#interrupt-cells = <1>;
++
++			interrupt-parent = <&cpuintc>;
++			interrupts = <2>;
++		};
++
++		memc@300 {
++			compatible = "ralink,mt7620a-memc", "ralink,rt3050-memc";
++			reg = <0x300 0x100>;
++		};
++
++		uartlite@c00 {
++			compatible = "ralink,mt7620a-uart", "ralink,rt2880-uart", "ns16550a";
++			reg = <0xc00 0x100>;
++
++			interrupt-parent = <&intc>;
++			interrupts = <12>;
++
++			reg-shift = <2>;
++		};
++	};
++};
+--- /dev/null
++++ b/arch/mips/boot/dts/ralink/mt7620a_eval.dts
+@@ -0,0 +1,17 @@
++/dts-v1/;
++
++/include/ "mt7620a.dtsi"
++
++/ {
++	compatible = "ralink,mt7620a-eval-board", "ralink,mt7620a-soc";
++	model = "Ralink MT7620A evaluation board";
++
++	memory@0 {
++		device_type = "memory";
++		reg = <0x0 0x2000000>;
++	};
++
++	chosen {
++		bootargs = "console=ttyS0,57600";
++	};
++};
+--- /dev/null
++++ b/arch/mips/boot/dts/ralink/rt2880.dtsi
+@@ -0,0 +1,58 @@
++/ {
++	#address-cells = <1>;
++	#size-cells = <1>;
++	compatible = "ralink,rt2880-soc";
++
++	cpus {
++		cpu@0 {
++			compatible = "mips,mips4KEc";
++		};
++	};
++
++	cpuintc: cpuintc@0 {
++		#address-cells = <0>;
++		#interrupt-cells = <1>;
++		interrupt-controller;
++		compatible = "mti,cpu-interrupt-controller";
++	};
++
++	palmbus@300000 {
++		compatible = "palmbus";
++		reg = <0x300000 0x200000>;
++                ranges = <0x0 0x300000 0x1FFFFF>;
++
++		#address-cells = <1>;
++		#size-cells = <1>;
++
++		sysc@0 {
++			compatible = "ralink,rt2880-sysc";
++			reg = <0x0 0x100>;
++		};
++
++		intc: intc@200 {
++			compatible = "ralink,rt2880-intc";
++			reg = <0x200 0x100>;
++
++			interrupt-controller;
++			#interrupt-cells = <1>;
++
++			interrupt-parent = <&cpuintc>;
++			interrupts = <2>;
++		};
++
++		memc@300 {
++			compatible = "ralink,rt2880-memc";
++			reg = <0x300 0x100>;
++		};
++
++		uartlite@c00 {
++			compatible = "ralink,rt2880-uart", "ns16550a";
++			reg = <0xc00 0x100>;
++
++			interrupt-parent = <&intc>;
++			interrupts = <8>;
++
++			reg-shift = <2>;
++		};
++	};
++};
+--- /dev/null
++++ b/arch/mips/boot/dts/ralink/rt2880_eval.dts
+@@ -0,0 +1,47 @@
++/dts-v1/;
++
++/include/ "rt2880.dtsi"
++
++/ {
++	compatible = "ralink,rt2880-eval-board", "ralink,rt2880-soc";
++	model = "Ralink RT2880 evaluation board";
++
++	memory@0 {
++		device_type = "memory";
++		reg = <0x8000000 0x2000000>;
++	};
++
++	chosen {
++		bootargs = "console=ttyS0,57600";
++	};
++
++	cfi@1f000000 {
++		compatible = "cfi-flash";
++		reg = <0x1f000000 0x400000>;
++
++		bank-width = <2>;
++		device-width = <2>;
++		#address-cells = <1>;
++		#size-cells = <1>;
++
++		partition@0 {
++			label = "uboot";
++			reg = <0x0 0x30000>;
++			read-only;
++		};
++		partition@30000 {
++			label = "uboot-env";
++			reg = <0x30000 0x10000>;
++			read-only;
++		};
++		partition@40000 {
++			label = "calibration";
++			reg = <0x40000 0x10000>;
++			read-only;
++		};
++		partition@50000 {
++			label = "linux";
++			reg = <0x50000 0x3b0000>;
++		};
++	};
++};
+--- /dev/null
++++ b/arch/mips/boot/dts/ralink/rt3050.dtsi
+@@ -0,0 +1,68 @@
++/ {
++	#address-cells = <1>;
++	#size-cells = <1>;
++	compatible = "ralink,rt3050-soc", "ralink,rt3052-soc", "ralink,rt3350-soc";
++
++	cpus {
++		cpu@0 {
++			compatible = "mips,mips24KEc";
++		};
++	};
++
++	cpuintc: cpuintc@0 {
++		#address-cells = <0>;
++		#interrupt-cells = <1>;
++		interrupt-controller;
++		compatible = "mti,cpu-interrupt-controller";
++	};
++
++	palmbus@10000000 {
++		compatible = "palmbus";
++		reg = <0x10000000 0x200000>;
++		ranges = <0x0 0x10000000 0x1FFFFF>;
++
++		#address-cells = <1>;
++		#size-cells = <1>;
++
++		sysc@0 {
++			compatible = "ralink,rt3052-sysc", "ralink,rt3050-sysc";
++			reg = <0x0 0x100>;
++		};
++
++		intc: intc@200 {
++			compatible = "ralink,rt3052-intc", "ralink,rt2880-intc";
++			reg = <0x200 0x100>;
++
++			interrupt-controller;
++			#interrupt-cells = <1>;
++
++			interrupt-parent = <&cpuintc>;
++			interrupts = <2>;
++		};
++
++		memc@300 {
++			compatible = "ralink,rt3052-memc", "ralink,rt3050-memc";
++			reg = <0x300 0x100>;
++		};
++
++		uartlite@c00 {
++			compatible = "ralink,rt3052-uart", "ralink,rt2880-uart", "ns16550a";
++			reg = <0xc00 0x100>;
++
++			interrupt-parent = <&intc>;
++			interrupts = <12>;
++
++			reg-shift = <2>;
++		};
++	};
++
++	usb@101c0000 {
++		compatible = "ralink,rt3050-usb", "snps,dwc2";
++		reg = <0x101c0000 40000>;
++
++		interrupt-parent = <&intc>;
++		interrupts = <18>;
++
++		status = "disabled";
++	};
++};
+--- /dev/null
++++ b/arch/mips/boot/dts/ralink/rt3052_eval.dts
+@@ -0,0 +1,51 @@
++/dts-v1/;
++
++#include "rt3050.dtsi"
++
++/ {
++	compatible = "ralink,rt3052-eval-board", "ralink,rt3052-soc";
++	model = "Ralink RT3052 evaluation board";
++
++	memory@0 {
++		device_type = "memory";
++		reg = <0x0 0x2000000>;
++	};
++
++	chosen {
++		bootargs = "console=ttyS0,57600";
++	};
++
++	cfi@1f000000 {
++		compatible = "cfi-flash";
++		reg = <0x1f000000 0x800000>;
++
++		bank-width = <2>;
++		device-width = <2>;
++		#address-cells = <1>;
++		#size-cells = <1>;
++
++		partition@0 {
++			label = "uboot";
++			reg = <0x0 0x30000>;
++			read-only;
++		};
++		partition@30000 {
++			label = "uboot-env";
++			reg = <0x30000 0x10000>;
++			read-only;
++		};
++		partition@40000 {
++			label = "calibration";
++			reg = <0x40000 0x10000>;
++			read-only;
++		};
++		partition@50000 {
++			label = "linux";
++			reg = <0x50000 0x7b0000>;
++		};
++	};
++
++	usb@101c0000 {
++		status = "ok";
++	};
++};
+--- /dev/null
++++ b/arch/mips/boot/dts/ralink/rt3883.dtsi
+@@ -0,0 +1,58 @@
++/ {
++	#address-cells = <1>;
++	#size-cells = <1>;
++	compatible = "ralink,rt3883-soc";
++
++	cpus {
++		cpu@0 {
++			compatible = "mips,mips74Kc";
++		};
++	};
++
++	cpuintc: cpuintc@0 {
++		#address-cells = <0>;
++		#interrupt-cells = <1>;
++		interrupt-controller;
++		compatible = "mti,cpu-interrupt-controller";
++	};
++
++	palmbus@10000000 {
++		compatible = "palmbus";
++		reg = <0x10000000 0x200000>;
++		ranges = <0x0 0x10000000 0x1FFFFF>;
++
++		#address-cells = <1>;
++		#size-cells = <1>;
++
++		sysc@0 {
++			compatible = "ralink,rt3883-sysc", "ralink,rt3050-sysc";
++			reg = <0x0 0x100>;
++		};
++
++		intc: intc@200 {
++			compatible = "ralink,rt3883-intc", "ralink,rt2880-intc";
++			reg = <0x200 0x100>;
++
++			interrupt-controller;
++			#interrupt-cells = <1>;
++
++			interrupt-parent = <&cpuintc>;
++			interrupts = <2>;
++		};
++
++		memc@300 {
++			compatible = "ralink,rt3883-memc", "ralink,rt3050-memc";
++			reg = <0x300 0x100>;
++		};
++
++		uartlite@c00 {
++			compatible = "ralink,rt3883-uart", "ralink,rt2880-uart", "ns16550a";
++			reg = <0xc00 0x100>;
++
++			interrupt-parent = <&intc>;
++			interrupts = <12>;
++
++			reg-shift = <2>;
++		};
++	};
++};
+--- /dev/null
++++ b/arch/mips/boot/dts/ralink/rt3883_eval.dts
+@@ -0,0 +1,17 @@
++/dts-v1/;
++
++/include/ "rt3883.dtsi"
++
++/ {
++	compatible = "ralink,rt3883-eval-board", "ralink,rt3883-soc";
++	model = "Ralink RT3883 evaluation board";
++
++	memory@0 {
++		device_type = "memory";
++		reg = <0x0 0x2000000>;
++	};
++
++	chosen {
++		bootargs = "console=ttyS0,57600";
++	};
++};
+--- a/arch/mips/boot/dts/rt2880.dtsi
++++ /dev/null
+@@ -1,58 +0,0 @@
+-/ {
+-	#address-cells = <1>;
+-	#size-cells = <1>;
+-	compatible = "ralink,rt2880-soc";
+-
+-	cpus {
+-		cpu@0 {
+-			compatible = "mips,mips4KEc";
+-		};
+-	};
+-
+-	cpuintc: cpuintc@0 {
+-		#address-cells = <0>;
+-		#interrupt-cells = <1>;
+-		interrupt-controller;
+-		compatible = "mti,cpu-interrupt-controller";
+-	};
+-
+-	palmbus@300000 {
+-		compatible = "palmbus";
+-		reg = <0x300000 0x200000>;
+-                ranges = <0x0 0x300000 0x1FFFFF>;
+-
+-		#address-cells = <1>;
+-		#size-cells = <1>;
+-
+-		sysc@0 {
+-			compatible = "ralink,rt2880-sysc";
+-			reg = <0x0 0x100>;
+-		};
+-
+-		intc: intc@200 {
+-			compatible = "ralink,rt2880-intc";
+-			reg = <0x200 0x100>;
+-
+-			interrupt-controller;
+-			#interrupt-cells = <1>;
+-
+-			interrupt-parent = <&cpuintc>;
+-			interrupts = <2>;
+-		};
+-
+-		memc@300 {
+-			compatible = "ralink,rt2880-memc";
+-			reg = <0x300 0x100>;
+-		};
+-
+-		uartlite@c00 {
+-			compatible = "ralink,rt2880-uart", "ns16550a";
+-			reg = <0xc00 0x100>;
+-
+-			interrupt-parent = <&intc>;
+-			interrupts = <8>;
+-
+-			reg-shift = <2>;
+-		};
+-	};
+-};
+--- a/arch/mips/boot/dts/rt2880_eval.dts
++++ /dev/null
+@@ -1,47 +0,0 @@
+-/dts-v1/;
+-
+-/include/ "rt2880.dtsi"
+-
+-/ {
+-	compatible = "ralink,rt2880-eval-board", "ralink,rt2880-soc";
+-	model = "Ralink RT2880 evaluation board";
+-
+-	memory@0 {
+-		device_type = "memory";
+-		reg = <0x8000000 0x2000000>;
+-	};
+-
+-	chosen {
+-		bootargs = "console=ttyS0,57600";
+-	};
+-
+-	cfi@1f000000 {
+-		compatible = "cfi-flash";
+-		reg = <0x1f000000 0x400000>;
+-
+-		bank-width = <2>;
+-		device-width = <2>;
+-		#address-cells = <1>;
+-		#size-cells = <1>;
+-
+-		partition@0 {
+-			label = "uboot";
+-			reg = <0x0 0x30000>;
+-			read-only;
+-		};
+-		partition@30000 {
+-			label = "uboot-env";
+-			reg = <0x30000 0x10000>;
+-			read-only;
+-		};
+-		partition@40000 {
+-			label = "calibration";
+-			reg = <0x40000 0x10000>;
+-			read-only;
+-		};
+-		partition@50000 {
+-			label = "linux";
+-			reg = <0x50000 0x3b0000>;
+-		};
+-	};
+-};
+--- a/arch/mips/boot/dts/rt3050.dtsi
++++ /dev/null
+@@ -1,68 +0,0 @@
+-/ {
+-	#address-cells = <1>;
+-	#size-cells = <1>;
+-	compatible = "ralink,rt3050-soc", "ralink,rt3052-soc", "ralink,rt3350-soc";
+-
+-	cpus {
+-		cpu@0 {
+-			compatible = "mips,mips24KEc";
+-		};
+-	};
+-
+-	cpuintc: cpuintc@0 {
+-		#address-cells = <0>;
+-		#interrupt-cells = <1>;
+-		interrupt-controller;
+-		compatible = "mti,cpu-interrupt-controller";
+-	};
+-
+-	palmbus@10000000 {
+-		compatible = "palmbus";
+-		reg = <0x10000000 0x200000>;
+-		ranges = <0x0 0x10000000 0x1FFFFF>;
+-
+-		#address-cells = <1>;
+-		#size-cells = <1>;
+-
+-		sysc@0 {
+-			compatible = "ralink,rt3052-sysc", "ralink,rt3050-sysc";
+-			reg = <0x0 0x100>;
+-		};
+-
+-		intc: intc@200 {
+-			compatible = "ralink,rt3052-intc", "ralink,rt2880-intc";
+-			reg = <0x200 0x100>;
+-
+-			interrupt-controller;
+-			#interrupt-cells = <1>;
+-
+-			interrupt-parent = <&cpuintc>;
+-			interrupts = <2>;
+-		};
+-
+-		memc@300 {
+-			compatible = "ralink,rt3052-memc", "ralink,rt3050-memc";
+-			reg = <0x300 0x100>;
+-		};
+-
+-		uartlite@c00 {
+-			compatible = "ralink,rt3052-uart", "ralink,rt2880-uart", "ns16550a";
+-			reg = <0xc00 0x100>;
+-
+-			interrupt-parent = <&intc>;
+-			interrupts = <12>;
+-
+-			reg-shift = <2>;
+-		};
+-	};
+-
+-	usb@101c0000 {
+-		compatible = "ralink,rt3050-usb", "snps,dwc2";
+-		reg = <0x101c0000 40000>;
+-
+-		interrupt-parent = <&intc>;
+-		interrupts = <18>;
+-
+-		status = "disabled";
+-	};
+-};
+--- a/arch/mips/boot/dts/rt3052_eval.dts
++++ /dev/null
+@@ -1,51 +0,0 @@
+-/dts-v1/;
+-
+-#include "rt3050.dtsi"
+-
+-/ {
+-	compatible = "ralink,rt3052-eval-board", "ralink,rt3052-soc";
+-	model = "Ralink RT3052 evaluation board";
+-
+-	memory@0 {
+-		device_type = "memory";
+-		reg = <0x0 0x2000000>;
+-	};
+-
+-	chosen {
+-		bootargs = "console=ttyS0,57600";
+-	};
+-
+-	cfi@1f000000 {
+-		compatible = "cfi-flash";
+-		reg = <0x1f000000 0x800000>;
+-
+-		bank-width = <2>;
+-		device-width = <2>;
+-		#address-cells = <1>;
+-		#size-cells = <1>;
+-
+-		partition@0 {
+-			label = "uboot";
+-			reg = <0x0 0x30000>;
+-			read-only;
+-		};
+-		partition@30000 {
+-			label = "uboot-env";
+-			reg = <0x30000 0x10000>;
+-			read-only;
+-		};
+-		partition@40000 {
+-			label = "calibration";
+-			reg = <0x40000 0x10000>;
+-			read-only;
+-		};
+-		partition@50000 {
+-			label = "linux";
+-			reg = <0x50000 0x7b0000>;
+-		};
+-	};
+-
+-	usb@101c0000 {
+-		status = "ok";
+-	};
+-};
+--- a/arch/mips/boot/dts/rt3883.dtsi
++++ /dev/null
+@@ -1,58 +0,0 @@
+-/ {
+-	#address-cells = <1>;
+-	#size-cells = <1>;
+-	compatible = "ralink,rt3883-soc";
+-
+-	cpus {
+-		cpu@0 {
+-			compatible = "mips,mips74Kc";
+-		};
+-	};
+-
+-	cpuintc: cpuintc@0 {
+-		#address-cells = <0>;
+-		#interrupt-cells = <1>;
+-		interrupt-controller;
+-		compatible = "mti,cpu-interrupt-controller";
+-	};
+-
+-	palmbus@10000000 {
+-		compatible = "palmbus";
+-		reg = <0x10000000 0x200000>;
+-		ranges = <0x0 0x10000000 0x1FFFFF>;
+-
+-		#address-cells = <1>;
+-		#size-cells = <1>;
+-
+-		sysc@0 {
+-			compatible = "ralink,rt3883-sysc", "ralink,rt3050-sysc";
+-			reg = <0x0 0x100>;
+-		};
+-
+-		intc: intc@200 {
+-			compatible = "ralink,rt3883-intc", "ralink,rt2880-intc";
+-			reg = <0x200 0x100>;
+-
+-			interrupt-controller;
+-			#interrupt-cells = <1>;
+-
+-			interrupt-parent = <&cpuintc>;
+-			interrupts = <2>;
+-		};
+-
+-		memc@300 {
+-			compatible = "ralink,rt3883-memc", "ralink,rt3050-memc";
+-			reg = <0x300 0x100>;
+-		};
+-
+-		uartlite@c00 {
+-			compatible = "ralink,rt3883-uart", "ralink,rt2880-uart", "ns16550a";
+-			reg = <0xc00 0x100>;
+-
+-			interrupt-parent = <&intc>;
+-			interrupts = <12>;
+-
+-			reg-shift = <2>;
+-		};
+-	};
+-};
+--- a/arch/mips/boot/dts/rt3883_eval.dts
++++ /dev/null
+@@ -1,17 +0,0 @@
+-/dts-v1/;
+-
+-/include/ "rt3883.dtsi"
+-
+-/ {
+-	compatible = "ralink,rt3883-eval-board", "ralink,rt3883-soc";
+-	model = "Ralink RT3883 evaluation board";
+-
+-	memory@0 {
+-		device_type = "memory";
+-		reg = <0x0 0x2000000>;
+-	};
+-
+-	chosen {
+-		bootargs = "console=ttyS0,57600";
+-	};
+-};
+--- a/arch/mips/boot/dts/sead3.dts
++++ /dev/null
+@@ -1,22 +0,0 @@
+-/dts-v1/;
+-
+-/memreserve/ 0x00000000 0x00001000;	// reserved
+-/memreserve/ 0x00001000 0x000ef000;	// ROM data
+-/memreserve/ 0x000f0000 0x004cc000;	// reserved
+-
+-/ {
+-	#address-cells = <1>;
+-	#size-cells = <1>;
+-	compatible = "mti,sead-3";
+-
+-	cpus {
+-		cpu@0 {
+-			compatible = "mti,mips14KEc", "mti,mips14Kc";
+-		};
+-	};
+-
+-	memory {
+-		device_type = "memory";
+-		reg = <0x0 0x08000000>;
+-	};
+-};
+--- a/arch/mips/boot/dts/xlp_evp.dts
++++ /dev/null
+@@ -1,118 +0,0 @@
+-/*
+- * XLP8XX Device Tree Source for EVP boards
+- */
+-
+-/dts-v1/;
+-/ {
+-	model = "netlogic,XLP-EVP";
+-	compatible = "netlogic,xlp";
+-	#address-cells = <2>;
+-	#size-cells = <2>;
+-
+-	soc {
+-		#address-cells = <2>;
+-		#size-cells = <1>;
+-		compatible = "simple-bus";
+-		ranges = <0 0  0 0x18000000  0x04000000   // PCIe CFG
+-			  1 0  0 0x16000000  0x02000000>; // GBU chipselects
+-
+-		serial0: serial@30000 {
+-			device_type = "serial";
+-			compatible = "ns16550";
+-			reg = <0 0x30100 0xa00>;
+-			reg-shift = <2>;
+-			reg-io-width = <4>;
+-			clock-frequency = <133333333>;
+-			interrupt-parent = <&pic>;
+-			interrupts = <17>;
+-		};
+-		serial1: serial@31000 {
+-			device_type = "serial";
+-			compatible = "ns16550";
+-			reg = <0 0x31100 0xa00>;
+-			reg-shift = <2>;
+-			reg-io-width = <4>;
+-			clock-frequency = <133333333>;
+-			interrupt-parent = <&pic>;
+-			interrupts = <18>;
+-		};
+-		i2c0: ocores@32000 {
+-			compatible = "opencores,i2c-ocores";
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-			reg = <0 0x32100 0xa00>;
+-			reg-shift = <2>;
+-			reg-io-width = <4>;
+-			clock-frequency = <32000000>;
+-			interrupt-parent = <&pic>;
+-			interrupts = <30>;
+-		};
+-		i2c1: ocores@33000 {
+-			compatible = "opencores,i2c-ocores";
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-			reg = <0 0x33100 0xa00>;
+-			reg-shift = <2>;
+-			reg-io-width = <4>;
+-			clock-frequency = <32000000>;
+-			interrupt-parent = <&pic>;
+-			interrupts = <31>;
+-
+-			rtc@68 {
+-				compatible = "dallas,ds1374";
+-				reg = <0x68>;
+-			};
+-
+-			dtt@4c {
+-				compatible = "national,lm90";
+-				reg = <0x4c>;
+-			};
+-		};
+-		pic: pic@4000 {
+-			compatible = "netlogic,xlp-pic";
+-			#address-cells = <0>;
+-			#interrupt-cells = <1>;
+-			reg = <0 0x4000 0x200>;
+-			interrupt-controller;
+-		};
+-
+-		nor_flash@1,0 {
+-			compatible = "cfi-flash";
+-			#address-cells = <1>;
+-			#size-cells = <1>;
+-			bank-width = <2>;
+-			reg = <1 0 0x1000000>;
+-
+-			partition@0 {
+-				label = "x-loader";
+-				reg = <0x0 0x100000>; /* 1M */
+-				read-only;
+-			};
+-
+-			partition@100000 {
+-				label = "u-boot";
+-				reg = <0x100000 0x100000>; /* 1M */
+-			};
+-
+-			partition@200000 {
+-				label = "kernel";
+-				reg = <0x200000 0x500000>; /* 5M */
+-			};
+-
+-			partition@700000 {
+-				label = "rootfs";
+-				reg = <0x700000 0x800000>; /* 8M */
+-			};
+-
+-			partition@f00000 {
+-				label = "env";
+-				reg = <0xf00000 0x100000>; /* 1M */
+-				read-only;
+-			};
+-		};
+-	};
+-
+-	chosen {
+-		bootargs = "console=ttyS0,115200 rdinit=/sbin/init";
+-	};
+-};
+--- a/arch/mips/boot/dts/xlp_fvp.dts
++++ /dev/null
+@@ -1,118 +0,0 @@
+-/*
+- * XLP2XX Device Tree Source for FVP boards
+- */
+-
+-/dts-v1/;
+-/ {
+-	model = "netlogic,XLP-FVP";
+-	compatible = "netlogic,xlp";
+-	#address-cells = <2>;
+-	#size-cells = <2>;
+-
+-	soc {
+-		#address-cells = <2>;
+-		#size-cells = <1>;
+-		compatible = "simple-bus";
+-		ranges = <0 0  0 0x18000000  0x04000000   // PCIe CFG
+-			  1 0  0 0x16000000  0x02000000>; // GBU chipselects
+-
+-		serial0: serial@30000 {
+-			device_type = "serial";
+-			compatible = "ns16550";
+-			reg = <0 0x30100 0xa00>;
+-			reg-shift = <2>;
+-			reg-io-width = <4>;
+-			clock-frequency = <133333333>;
+-			interrupt-parent = <&pic>;
+-			interrupts = <17>;
+-		};
+-		serial1: serial@31000 {
+-			device_type = "serial";
+-			compatible = "ns16550";
+-			reg = <0 0x31100 0xa00>;
+-			reg-shift = <2>;
+-			reg-io-width = <4>;
+-			clock-frequency = <133333333>;
+-			interrupt-parent = <&pic>;
+-			interrupts = <18>;
+-		};
+-		i2c0: ocores@37100 {
+-			compatible = "opencores,i2c-ocores";
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-			reg = <0 0x37100 0x20>;
+-			reg-shift = <2>;
+-			reg-io-width = <4>;
+-			clock-frequency = <32000000>;
+-			interrupt-parent = <&pic>;
+-			interrupts = <30>;
+-		};
+-		i2c1: ocores@37120 {
+-			compatible = "opencores,i2c-ocores";
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-			reg = <0 0x37120 0x20>;
+-			reg-shift = <2>;
+-			reg-io-width = <4>;
+-			clock-frequency = <32000000>;
+-			interrupt-parent = <&pic>;
+-			interrupts = <31>;
+-
+-			rtc@68 {
+-				compatible = "dallas,ds1374";
+-				reg = <0x68>;
+-			};
+-
+-			dtt@4c {
+-				compatible = "national,lm90";
+-				reg = <0x4c>;
+-			};
+-		};
+-		pic: pic@4000 {
+-			compatible = "netlogic,xlp-pic";
+-			#address-cells = <0>;
+-			#interrupt-cells = <1>;
+-			reg = <0 0x4000 0x200>;
+-			interrupt-controller;
+-		};
+-
+-		nor_flash@1,0 {
+-			compatible = "cfi-flash";
+-			#address-cells = <1>;
+-			#size-cells = <1>;
+-			bank-width = <2>;
+-			reg = <1 0 0x1000000>;
+-
+-			partition@0 {
+-				label = "x-loader";
+-				reg = <0x0 0x100000>; /* 1M */
+-				read-only;
+-			};
+-
+-			partition@100000 {
+-				label = "u-boot";
+-				reg = <0x100000 0x100000>; /* 1M */
+-			};
+-
+-			partition@200000 {
+-				label = "kernel";
+-				reg = <0x200000 0x500000>; /* 5M */
+-			};
+-
+-			partition@700000 {
+-				label = "rootfs";
+-				reg = <0x700000 0x800000>; /* 8M */
+-			};
+-
+-			partition@f00000 {
+-				label = "env";
+-				reg = <0xf00000 0x100000>; /* 1M */
+-				read-only;
+-			};
+-		};
+-	};
+-
+-	chosen {
+-		bootargs = "console=ttyS0,115200 rdinit=/sbin/init";
+-	};
+-};
+--- a/arch/mips/boot/dts/xlp_gvp.dts
++++ /dev/null
+@@ -1,77 +0,0 @@
+-/*
+- * XLP9XX Device Tree Source for GVP boards
+- */
+-
+-/dts-v1/;
+-/ {
+-	model = "netlogic,XLP-GVP";
+-	compatible = "netlogic,xlp";
+-	#address-cells = <2>;
+-	#size-cells = <2>;
+-
+-	soc {
+-		#address-cells = <2>;
+-		#size-cells = <1>;
+-		compatible = "simple-bus";
+-		ranges = <0 0  0 0x18000000  0x04000000   // PCIe CFG
+-			  1 0  0 0x16000000  0x02000000>; // GBU chipselects
+-
+-		serial0: serial@30000 {
+-			device_type = "serial";
+-			compatible = "ns16550";
+-			reg = <0 0x112100 0xa00>;
+-			reg-shift = <2>;
+-			reg-io-width = <4>;
+-			clock-frequency = <125000000>;
+-			interrupt-parent = <&pic>;
+-			interrupts = <17>;
+-		};
+-		pic: pic@110000 {
+-			compatible = "netlogic,xlp-pic";
+-			#address-cells = <0>;
+-			#interrupt-cells = <1>;
+-			reg = <0 0x110000 0x200>;
+-			interrupt-controller;
+-		};
+-
+-		nor_flash@1,0 {
+-			compatible = "cfi-flash";
+-			#address-cells = <1>;
+-			#size-cells = <1>;
+-			bank-width = <2>;
+-			reg = <1 0 0x1000000>;
+-
+-			partition@0 {
+-				label = "x-loader";
+-				reg = <0x0 0x100000>; /* 1M */
+-				read-only;
+-			};
+-
+-			partition@100000 {
+-				label = "u-boot";
+-				reg = <0x100000 0x100000>; /* 1M */
+-			};
+-
+-			partition@200000 {
+-				label = "kernel";
+-				reg = <0x200000 0x500000>; /* 5M */
+-			};
+-
+-			partition@700000 {
+-				label = "rootfs";
+-				reg = <0x700000 0x800000>; /* 8M */
+-			};
+-
+-			partition@f00000 {
+-				label = "env";
+-				reg = <0xf00000 0x100000>; /* 1M */
+-				read-only;
+-			};
+-		};
+-
+-	};
+-
+-	chosen {
+-		bootargs = "console=ttyS0,115200 rdinit=/sbin/init";
+-	};
+-};
+--- a/arch/mips/boot/dts/xlp_svp.dts
++++ /dev/null
+@@ -1,118 +0,0 @@
+-/*
+- * XLP3XX Device Tree Source for SVP boards
+- */
+-
+-/dts-v1/;
+-/ {
+-	model = "netlogic,XLP-SVP";
+-	compatible = "netlogic,xlp";
+-	#address-cells = <2>;
+-	#size-cells = <2>;
+-
+-	soc {
+-		#address-cells = <2>;
+-		#size-cells = <1>;
+-		compatible = "simple-bus";
+-		ranges = <0 0  0 0x18000000  0x04000000   // PCIe CFG
+-			  1 0  0 0x16000000  0x02000000>; // GBU chipselects
+-
+-		serial0: serial@30000 {
+-			device_type = "serial";
+-			compatible = "ns16550";
+-			reg = <0 0x30100 0xa00>;
+-			reg-shift = <2>;
+-			reg-io-width = <4>;
+-			clock-frequency = <133333333>;
+-			interrupt-parent = <&pic>;
+-			interrupts = <17>;
+-		};
+-		serial1: serial@31000 {
+-			device_type = "serial";
+-			compatible = "ns16550";
+-			reg = <0 0x31100 0xa00>;
+-			reg-shift = <2>;
+-			reg-io-width = <4>;
+-			clock-frequency = <133333333>;
+-			interrupt-parent = <&pic>;
+-			interrupts = <18>;
+-		};
+-		i2c0: ocores@32000 {
+-			compatible = "opencores,i2c-ocores";
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-			reg = <0 0x32100 0xa00>;
+-			reg-shift = <2>;
+-			reg-io-width = <4>;
+-			clock-frequency = <32000000>;
+-			interrupt-parent = <&pic>;
+-			interrupts = <30>;
+-		};
+-		i2c1: ocores@33000 {
+-			compatible = "opencores,i2c-ocores";
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-			reg = <0 0x33100 0xa00>;
+-			reg-shift = <2>;
+-			reg-io-width = <4>;
+-			clock-frequency = <32000000>;
+-			interrupt-parent = <&pic>;
+-			interrupts = <31>;
+-
+-			rtc@68 {
+-				compatible = "dallas,ds1374";
+-				reg = <0x68>;
+-			};
+-
+-			dtt@4c {
+-				compatible = "national,lm90";
+-				reg = <0x4c>;
+-			};
+-		};
+-		pic: pic@4000 {
+-			compatible = "netlogic,xlp-pic";
+-			#address-cells = <0>;
+-			#interrupt-cells = <1>;
+-			reg = <0 0x4000 0x200>;
+-			interrupt-controller;
+-		};
+-
+-		nor_flash@1,0 {
+-			compatible = "cfi-flash";
+-			#address-cells = <1>;
+-			#size-cells = <1>;
+-			bank-width = <2>;
+-			reg = <1 0 0x1000000>;
+-
+-			partition@0 {
+-				label = "x-loader";
+-				reg = <0x0 0x100000>; /* 1M */
+-				read-only;
+-			};
+-
+-			partition@100000 {
+-				label = "u-boot";
+-				reg = <0x100000 0x100000>; /* 1M */
+-			};
+-
+-			partition@200000 {
+-				label = "kernel";
+-				reg = <0x200000 0x500000>; /* 5M */
+-			};
+-
+-			partition@700000 {
+-				label = "rootfs";
+-				reg = <0x700000 0x800000>; /* 8M */
+-			};
+-
+-			partition@f00000 {
+-				label = "env";
+-				reg = <0xf00000 0x100000>; /* 1M */
+-				read-only;
+-			};
+-		};
+-	};
+-
+-	chosen {
+-		bootargs = "console=ttyS0,115200 rdinit=/sbin/init";
+-	};
+-};

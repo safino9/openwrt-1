@@ -1,0 +1,13 @@
+--- a/arch/mips/bmips/setup.c
++++ b/arch/mips/bmips/setup.c
+@@ -147,7 +147,9 @@ void __init plat_mem_setup(void)
+ 	ioport_resource.end = ~0;
+ 
+ 	/* intended to somewhat resemble ARM; see Documentation/arm/Booting */
+-	if (fw_arg0 == 0 && fw_arg1 == 0xffffffff)
++	if (initial_boot_params)
++		dtb = initial_boot_params;
++	else if (fw_arg0 == 0 && fw_arg1 == 0xffffffff)
+ 		dtb = phys_to_virt(fw_arg2);
+ 	else if (__dtb_start != __dtb_end)
+ 		dtb = (void *)__dtb_start;

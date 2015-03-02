@@ -1,0 +1,34 @@
+--- a/arch/mips/bmips/setup.c
++++ b/arch/mips/bmips/setup.c
+@@ -30,6 +30,8 @@
+ 
+ #define RELO_NORMAL_VEC		BIT(18)
+ 
++#define REG_BCM63268_LEDCTRL	((void __iomem *)CKSEG1ADDR(0x100000d0))
++
+ #define REG_BCM6328_OTP		((void __iomem *)CKSEG1ADDR(0x1000062c))
+ #define BCM6328_TP1_DISABLED	BIT(9)
+ 
+@@ -86,6 +88,14 @@ static void bcm63xx_fixup_cpu1(void)
+ 	cpumask_set_cpu(1, &bmips_booted_mask);
+ }
+ 
++static void bcm63268_quirks(void)
++{
++	/* Clear LEDCtrl register */
++	__raw_writel(0, REG_BCM63268_LEDCTRL);
++
++	bcm63xx_fixup_cpu1();
++}
++
+ static void bcm6328_quirks(void)
+ {
+ 	/* Check CPU1 status in OTP (it is usually disabled) */
+@@ -108,6 +118,7 @@ static void bcm6368_quirks(void)
+ static const struct bmips_quirk bmips_quirk_list[] = {
+ 	{ "brcm,bcm3384-viper",		&bcm3384_viper_quirks		},
+ 	{ "brcm,bcm33843-viper",	&bcm3384_viper_quirks		},
++	{ "brcm,bcm63268",		&bcm63268_quirks		},
+ 	{ "brcm,bcm6328",		&bcm6328_quirks			},
+ 	{ "brcm,bcm6358",		&bcm6358_quirks			},
+ 	{ "brcm,bcm6368",		&bcm6368_quirks			},

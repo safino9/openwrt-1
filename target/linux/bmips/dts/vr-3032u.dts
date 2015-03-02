@@ -1,0 +1,115 @@
+/dts-v1/;
+
+/include/ "bcm63268.dtsi"
+
+/ {
+	compatible = "comtrend,vr-3032u", "brcm,bcm63268";
+	model = "Comtrend VR-3032u";
+
+	memory@0 {
+		device_type = "memory";
+		reg = <0x00000000 0x04000000>;
+	};
+
+	chosen {
+		bootargs = "console=ttyS0,115200";
+		stdout-path = &uart0;
+	};
+
+	gpio-keys-polled {
+		compatible = "gpio-keys-polled";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		poll-interval = <20>;
+		debounce-interval = <60>;
+
+		reset {
+			label = "reset";
+			gpios = <&gpio1 0 1>;
+			linux,code = <0x198>;
+		};
+		wps {
+			label = "wps";
+			gpios = <&gpio1 1 1>;
+			linux,code = <0x211>;
+		};
+	};
+
+	gpio-leds {
+		compatible = "gpio-leds";
+
+		power_green {
+			label = "VR-3032u:green:power";
+			gpios = <&gpio0 20 1>;
+			default-state = "on";
+		};
+	};
+};
+
+&sleds0 {
+	status = "ok";
+
+	inet_red {
+		compatible = "serial-led";
+		pin = <0x2>;
+		label = "VR-3032u:red:inet";
+		active-low;
+	};
+	dsl_green {
+		compatible = "serial-led";
+		pin = <0x3>;
+		label = "VR-3032u:green:dsl";
+		active-low;
+	};
+	usb_green {
+		compatible = "serial-led";
+		pin = <0x4>;
+		label = "VR-3032u:green:usb";
+		active-low;
+	};
+	wps_green {
+		compatible = "serial-led";
+		pin = <0x7>;
+		label = "VR-3032u:green:wps";
+		active-low;
+	};
+};
+
+&sleds1 {
+	status = "ok";
+
+	inet_green {
+		compatible = "serial-led";
+		pin = <0x0>;
+		label = "VR-3032u:green:inet";
+		active-low;
+	};
+	lan2_green {
+		compatible = "serial-led";
+		pin = <0x1>;
+		label = "VR-3032u:green:lan2";
+		active-low;
+	};
+	lan3_green {
+		compatible = "serial-led";
+		pin = <0x2>;
+		label = "VR-3032u:green:lan3";
+		active-low;
+	};
+	lan4_green {
+		compatible = "serial-led";
+		pin = <0x3>;
+		label = "VR-3032u:green:lan4";
+		active-low;
+	};
+	lan1_green {
+		compatible = "serial-led";
+		pin = <0x4>;
+		label = "VR-3032u:green:lan1";
+		active-low;
+	};
+};
+
+&uart0 {
+	status = "ok";
+};
