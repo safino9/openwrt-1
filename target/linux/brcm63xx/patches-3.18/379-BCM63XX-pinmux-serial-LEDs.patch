@@ -1,0 +1,13 @@
+--- a/arch/mips/bcm63xx/boards/board_common.c
++++ b/arch/mips/bcm63xx/boards/board_common.c
+@@ -106,6 +106,10 @@ void __init board_early_setup(const stru
+ 				GPIO_MODE_6348_G0_EXT_MII;
+ 	}
+ 
++	/* Serial LEDs pinmux */
++	if (BCMCPU_IS_63268())
++		val |= BIT(0) | BIT(1);
++
+ 	bcm_gpio_writel(val, GPIO_MODE_REG);
+ 
+ #if IS_ENABLED(CONFIG_USB)
