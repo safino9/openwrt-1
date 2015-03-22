@@ -7,6 +7,7 @@
 		gpio0 = &gpio0;
 		gpio1 = &gpio1;
 		leds0 = &leds0;
+		pflash = &pflash;
 	};
 
 	cpus {
@@ -81,6 +82,17 @@
 
 			gpio-controller;
 			#gpio-cells = <2>;
+		};
+
+		pflash: nand@10000200 {
+			compatible = "brcm,brcmnand-v4.0", "brcm,brcmnand";
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <0x10000200 0x400>, <0x10000600 0x200>;
+			reg-names = "nand", "nand-cache";
+			brcm,nand-has-wp;
+
+			status = "disabled";
 		};
 
 		leds0: led-controller@10001900 {

@@ -1,0 +1,91 @@
+diff -uprN a/drivers/mtd/nand/brcmstb_nand.c b/drivers/mtd/nand/brcmstb_nand.c
+--- a/drivers/mtd/nand/brcmstb_nand.c	2015-03-22 19:01:01.707156500 +0100
++++ b/drivers/mtd/nand/brcmstb_nand.c	2015-03-22 19:02:26.177168749 +0100
+@@ -1004,22 +1005,46 @@ static int brcmnand_waitfunc(struct mtd_
+ 	struct nand_chip *chip = mtd->priv;
+ 	struct brcmnand_host *host = chip->priv;
+ 	struct brcmnand_controller *ctrl = host->ctrl;
+-	unsigned long timeo = msecs_to_jiffies(100);
+ 
+-	dev_dbg(ctrl->dev, "wait on native cmd %d\n", ctrl->cmd_pending);
+-	if (ctrl->cmd_pending &&
+-			wait_for_completion_timeout(&ctrl->done, timeo) <= 0) {
+-		u32 cmd = brcmnand_read_reg(ctrl, BRCMNAND_CMD_START)
+-					>> brcmnand_cmd_shift(ctrl);
+-
+-		dev_err_ratelimited(ctrl->dev,
+-			"timeout waiting for command %#02x\n", cmd);
+-		dev_err_ratelimited(ctrl->dev, "intfc status %08x\n",
+-			brcmnand_read_reg(ctrl, BRCMNAND_INTFC_STATUS));
+-	}
+-	ctrl->cmd_pending = 0;
+-	return brcmnand_read_reg(ctrl, BRCMNAND_INTFC_STATUS) &
+-				 INTFC_FLASH_STATUS;
++	if((int) ctrl->irq < 0) {
++		int i;
++		dev_dbg(ctrl->dev, "wait on native cmd %d\n", ctrl->cmd_pending);
++		if (ctrl->cmd_pending) {
++			for (i = 0; i < 10000; i++) {
++				u32 ready, wait_for;
++
++				ready = brcmnand_read_reg(ctrl, BRCMNAND_INTFC_STATUS);
++				wait_for = INTFC_CTLR_READY | INTFC_FLASH_READY;
++
++				if ((ready & wait_for) == wait_for) {
++					break;
++				}
++
++				udelay(100);
++			}
++		}
++
++		ctrl->cmd_pending = 0;
++		return brcmnand_read_reg(ctrl, BRCMNAND_INTFC_STATUS) &
++					 INTFC_FLASH_STATUS;
++	} else {
++		unsigned long timeo = msecs_to_jiffies(100);
++
++		dev_dbg(ctrl->dev, "wait on native cmd %d\n", ctrl->cmd_pending);
++		if (ctrl->cmd_pending &&
++				wait_for_completion_timeout(&ctrl->done, timeo) <= 0) {
++			u32 cmd = brcmnand_read_reg(ctrl, BRCMNAND_CMD_START)
++						>> brcmnand_cmd_shift(ctrl);
++
++			dev_err_ratelimited(ctrl->dev,
++				"timeout waiting for command %#02x\n", cmd);
++			dev_err_ratelimited(ctrl->dev, "intfc status %08x\n",
++				brcmnand_read_reg(ctrl, BRCMNAND_INTFC_STATUS));
++		}
++		ctrl->cmd_pending = 0;
++		return brcmnand_read_reg(ctrl, BRCMNAND_INTFC_STATUS) &
++					 INTFC_FLASH_STATUS;
++	}
+ }
+ 
+ enum {
+@@ -2117,16 +2142,16 @@ static int brcmnand_probe(struct platfor
+ 	/* IRQ */
+ 	ctrl->irq = platform_get_irq(pdev, 0);
+ 	if ((int)ctrl->irq < 0) {
+-		dev_err(dev, "no IRQ defined\n");
+-		return -ENODEV;
++		dev_warn(dev, "no IRQ defined\n");
+ 	}
+-
+-	ret = devm_request_irq(dev, ctrl->irq, brcmnand_ctlrdy_irq, 0,
+-			DRV_NAME, ctrl);
+-	if (ret < 0) {
+-		dev_err(dev, "can't allocate IRQ %d: error %d\n",
+-			ctrl->irq, ret);
+-		return ret;
++	else {
++		ret = devm_request_irq(dev, ctrl->irq, brcmnand_ctlrdy_irq, 0,
++				DRV_NAME, ctrl);
++		if (ret < 0) {
++			dev_err(dev, "can't allocate IRQ %d: error %d\n",
++				ctrl->irq, ret);
++			return ret;
++		}
+ 	}
+ 
+ 	for_each_available_child_of_node(dn, child) {
