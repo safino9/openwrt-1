@@ -1,0 +1,23 @@
+--- a/arch/mips/bcm63xx/boards/board_common.c
++++ b/arch/mips/bcm63xx/boards/board_common.c
+@@ -202,6 +202,20 @@ int __init board_register_devices(void)
+ 
+ 		of_platform_populate(NULL, of_ids, NULL, NULL);
+ 	}
++
++	/* Serial LEDs pinmux */
++	if (board_of_device_present("leds0")) {
++		u32 val;
++
++		val = bcm_gpio_readl(GPIO_MODE_REG);
++		if (BCMCPU_IS_6318() || BCMCPU_IS_6328())
++			val |= BIT(6) | BIT(7);
++		else if (BCMCPU_IS_63268())
++			val |= BIT(0) | BIT(1);
++		else if (BCMCPU_IS_6362())
++			val |= BIT(2) | BIT(3);
++		bcm_gpio_writel(val, GPIO_MODE_REG);
++	}
+ #endif
+ 
+ 	bcm63xx_gpio_init();
