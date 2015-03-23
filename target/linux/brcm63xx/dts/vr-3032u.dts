@@ -1,0 +1,117 @@
+/dts-v1/;
+
+/include/ "bcm63268.dtsi"
+
+/ {
+	model = "Comtrend VR-3032u";
+	compatible = "comtrend,vr-3032u", "brcm,bcm63268";
+
+	gpio-keys-polled {
+		compatible = "gpio-keys-polled";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		poll-interval = <20>;
+		debounce-interval = <60>;
+
+		reset {
+			label = "reset";
+			gpios = <&gpio1 0 1>;
+			linux,code = <0x198>;
+		};
+		wps {
+			label = "wps";
+			gpios = <&gpio1 1 1>;
+			linux,code = <0x211>;
+		};
+	};
+};
+
+&leds0 {
+	status = "ok";
+	brcm,serial-leds;
+
+	gphy0_spd0@0 {
+		compatible = "brcm,bcm6328-led";
+		reg = <0>;
+		brcm,hardware-controlled;
+		brcm,link-selection = <0>;
+	};
+	gphy0_spd1@1 {
+		compatible = "brcm,bcm6328-led";
+		reg = <1>;
+		brcm,hardware-controlled;
+		brcm,link-selection = <1>;
+	};
+	inet_red@2 {
+		compatible = "brcm,bcm6328-led";
+		reg = <2>;
+		active-low;
+		label = "VR-3032u:red:inet";
+	};
+	dsl_green@3 {
+		compatible = "brcm,bcm6328-led";
+		reg = <3>;
+		active-low;
+		label = "VR-3032u:green:dsl";
+	};
+	usb_green@4 {
+		compatible = "brcm,bcm6328-led";
+		reg = <4>;
+		active-low;
+		label = "VR-3032u:green:usb";
+	};
+	wps_green@7 {
+		compatible = "brcm,bcm6328-led";
+		reg = <7>;
+		active-low;
+		label = "VR-3032u:green:wps";
+	};
+	inet_green@8 {
+		compatible = "brcm,bcm6328-led";
+		reg = <8>;
+		active-low;
+		label = "VR-3032u:green:inet";
+	};
+	ephy0_act@9 {
+		compatible = "brcm,bcm6328-led";
+		reg = <9>;
+		brcm,hardware-controlled;
+	};
+	ephy1_act@10 {
+		compatible = "brcm,bcm6328-led";
+		reg = <10>;
+		brcm,hardware-controlled;
+	};
+	ephy2_act@11 {
+		compatible = "brcm,bcm6328-led";
+		reg = <11>;
+		brcm,hardware-controlled;
+	};
+	gphy0_act@12 {
+		compatible = "brcm,bcm6328-led";
+		reg = <12>;
+		brcm,hardware-controlled;
+	};
+	ephy0_act@13 {
+		compatible = "brcm,bcm6328-led";
+		reg = <13>;
+		brcm,hardware-controlled;
+	};
+	ephy1_act@14 {
+		compatible = "brcm,bcm6328-led";
+		reg = <14>;
+		brcm,hardware-controlled;
+	};
+	ephy2_act@15 {
+		compatible = "brcm,bcm6328-led";
+		reg = <15>;
+		brcm,hardware-controlled;
+	};
+	power_green@20 {
+		compatible = "brcm,bcm6328-led";
+		reg = <20>;
+		active-low;
+		label = "VR-3032u:green:power";
+		default-state = "on";
+	};
+};
